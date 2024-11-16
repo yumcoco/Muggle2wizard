@@ -33,39 +33,39 @@
           <TransitionGroup name="fade">
             <!-- Step 1: Welcome -->
             <div v-if="step === 0" key="welcome" class="ceremony-step">
-              <button @click="nextStep" class="magical-button">开始仪式</button>
+              <button @click="nextStep" class="magical-button">Start Ceremony</button>
             </div>
 
             <!-- Step 2: Name & MBTI -->
             <div v-if="step === 1" key="personal-info" class="ceremony-step">
               <input
                 v-model="userData.name"
-                placeholder="你的名字"
+                placeholder="Your name"
                 class="magical-input"
                 @input="generateWizardName"
               />
               <div v-if="wizardName" class="wizard-name-reveal">
-                <p>你的巫师名字是：</p>
+                <p>Your wizard name is:</p>
                 <h3>{{ wizardName }}</h3>
               </div>
-              <input v-model="userData.mbti" placeholder="你的MBTI类型" class="magical-input" />
-              <button @click="nextStep" class="magical-button">下一步</button>
+              <input v-model="userData.mbti" placeholder="Your MBTI type" class="magical-input" />
+              <button @click="nextStep" class="magical-button">Next</button>
             </div>
 
             <!-- Step 3: Ceremony Scene -->
             <div v-if="step === 2" key="scene" class="ceremony-step">
               <input
                 v-model="userData.scene"
-                placeholder="描述你理想的仪式场景"
+                placeholder="Describe your ideal ceremony scene"
                 class="magical-input"
               />
-              <button @click="nextStep" class="magical-button">生成场景</button>
+              <button @click="nextStep" class="magical-button">Generate Scene</button>
             </div>
 
             <!-- Step 4: Wizard Wish -->
             <div v-if="step === 3" key="wish" class="ceremony-step">
-              <input v-model="userData.wish" placeholder="说出你的愿望" class="magical-input" />
-              <button @click="nextStep" class="magical-button">许下愿望</button>
+              <input v-model="userData.wish" placeholder="State your wish" class="magical-input" />
+              <button @click="nextStep" class="magical-button">Make a Wish</button>
             </div>
 
             <!-- Step 5: Sorting Ceremony -->
@@ -89,18 +89,18 @@
             <!-- Step 6: Result -->
             <div v-if="step === 5" key="result" class="ceremony-step result">
               <div class="wizard-profile">
-                <h2>{{ wizardName }}的巫师档案</h2>
+                <h2>{{ wizardName }}'s Wizard Profile</h2>
                 <div class="profile-content">
-                  <p>学院: {{ wizardProfile.house }}</p>
-                  <p>魔杖: {{ wizardProfile.wand }}</p>
-                  <p>守护神: {{ wizardProfile.patronus }}</p>
-                  <p>专属咒语: {{ wizardProfile.spell }}</p>
+                  <p>House: {{ wizardProfile.house }}</p>
+                  <p>Wand: {{ wizardProfile.wand }}</p>
+                  <p>Patronus: {{ wizardProfile.patronus }}</p>
+                  <p>Signature Spell: {{ wizardProfile.spell }}</p>
                   <div class="mentor-message">
-                    <h3>导师寄语</h3>
+                    <h3>Mentor's Message</h3>
                     <p>{{ wizardProfile.mentorMessage }}</p>
                   </div>
                 </div>
-                <button @click="saveProfile" class="magical-button">保存档案</button>
+                <button @click="saveProfile" class="magical-button">Save Profile</button>
               </div>
             </div>
           </TransitionGroup>
@@ -112,7 +112,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, computed, onMounted } from 'vue'
-import type { UserData, WizardProfile, House } from '@/types'
+import type { UserData, WizardProfile, House } from '@types'
 import { houses } from '@/types'
 
 export default defineComponent({
@@ -136,26 +136,44 @@ export default defineComponent({
     const spellElement = ref<HTMLParagraphElement | null>(null)
     const wizardName = ref('')
 
-    // 音效相关
+    // Audio related
     let bgMusic: HTMLAudioElement | null = null
     let sortingSound: HTMLAudioElement | null = null
     let spellSound: HTMLAudioElement | null = null
 
     onMounted(() => {
-      bgMusic = new Audio('/hogwarts-theme.mp3')
+      bgMusic = new Audio('public/assets/hogwarts-theme.mp3')
       bgMusic.loop = true
-      sortingSound = new Audio('/sorting-sound.mp3')
-      spellSound = new Audio('/spell-sound.mp3')
+      bgMusic.addEventListener('canplaythrough', () => {
+        console.log('BGM is ready to play.')
+      })
+      bgMusic.addEventListener('error', (e) => {
+        console.error('Failed to load BGM:', e)
+      })
+      bgMusic.play()
+
+      sortingSound = new Audio('public/assets/sorting-sound.wav')
+      spellSound = new Audio('public/assets/spell-sound.wav')
+
+      function handleUserInteraction() {
+        bgMusic?.play().catch((error) => {
+          console.error('Failed to play BGM:', error)
+        })
+        document.removeEventListener('click', handleUserInteraction)
+      }
+
+      // 添加点击事件监听器
+      document.addEventListener('click', handleUserInteraction)
     })
 
     const currentTitle = computed(() => {
       const titles = [
         'Hogwarts Sorting Ceremony',
-        '身份确认',
-        '场景选择',
-        '巫师愿望',
-        '分院仪式',
-        '巫师档案',
+        'Identity Confirmation',
+        'Scene Selection',
+        'Wizard Wish',
+        'Sorting Ceremony',
+        'Wizard Profile',
       ]
       return titles[step.value]
     })
@@ -168,12 +186,12 @@ export default defineComponent({
 
     const currentDialog = computed(() => {
       const dialogs = [
-        '欢迎来到魔法世界，尊贵的麻瓜！请站在分院帽前，让我们开始一场属于你的神奇仪式！',
-        '告诉我你的名字，未来的巫师。你的性格又是怎样的呢？',
-        '告诉多比你想要的仪式场景吧！比如"古老的森林"或"神秘的湖泊"。',
-        '每一位巫师心中都有一个愿望。告诉我你的愿望吧。',
-        '让我们看看你属于哪个学院...',
-        '恭喜你成为一名真正的巫师！',
+        'Welcome to the magical world, dear Muggle! Please stand before the Sorting Hat and begin your magical journey!',
+        'Tell me your name, future wizard. What is your personality like?',
+        'Tell Dobby about your ideal ceremony scene! For example, "ancient forest" or "mystical lake."',
+        'Every wizard has a wish deep inside. Tell me yours.',
+        'Let’s see which house you belong to...',
+        'Congratulations on becoming a real wizard!',
       ]
       return dialogs[step.value]
     })
@@ -218,7 +236,17 @@ export default defineComponent({
 
     async function startSortingCeremony(): Promise<void> {
       step.value++
-      sortingSound?.play()
+      // sortingSound?.play()
+      if (bgMusic) {
+        bgMusic.pause() // 暂停背景音乐
+      }
+      sortingSound?.play() // 播放分院帽音效
+
+      // sortingSound?.addEventListener('ended', () => {
+      //   if (bgMusic) {
+      //     bgMusic.play() // 恢复背景音乐
+      //   }
+      // })
       await new Promise((resolve) => setTimeout(resolve, 5000))
 
       const randomHouse = houses[Math.floor(Math.random() * houses.length)]
@@ -244,28 +272,30 @@ export default defineComponent({
     }
 
     function generateWand(): string {
-      const woods = ['橡木', '冬青木', '山楂木', '榆木']
-      const cores = ['凤凰羽毛', '独角兽毛', '龙的心弦']
+      const woods = ['Oak', 'Holly', 'Hawthorn', 'Elm']
+      const cores = ['Phoenix Feather', 'Unicorn Hair', 'Dragon Heartstring']
       const lengths = [9, 10, 11, 12, 13, 14]
 
       return (
-        `${woods[Math.floor(Math.random() * woods.length)]}，` +
-        `${cores[Math.floor(Math.random() * cores.length)]}，` +
-        `${lengths[Math.floor(Math.random() * lengths.length)]}英寸`
+        `${woods[Math.floor(Math.random() * woods.length)]}, ` +
+        `${cores[Math.floor(Math.random() * cores.length)]}, ` +
+        `${lengths[Math.floor(Math.random() * lengths.length)]} inches`
       )
     }
 
     function generatePatronus(): string {
-      const patronuses = ['牡鹿', '水獭', '凤凰', '独角兽', '狼', '猫']
+      const patronuses = ['Stag', 'Otter', 'Phoenix', 'Unicorn', 'Wolf', 'Cat']
       return patronuses[Math.floor(Math.random() * patronuses.length)]
     }
 
     function getHouseMentorMessage(house: House): string {
       const messages: Record<House, string> = {
-        Gryffindor: '勇敢的心能照亮最黑暗的夜晚，愿你的力量为朋友带来希望。',
-        Hufflepuff: '温柔与耐心是你的力量源泉，愿你的善良成为你最大的魔法。',
-        Ravenclaw: '智慧与探索的渴望会引领你，知识才是真正的魔法。',
-        Slytherin: '只有真正的决心与信念，才能掌控属于你的命运。',
+        Gryffindor:
+          'A brave heart can light up the darkest night. May your strength bring hope to your friends.',
+        Hufflepuff:
+          'Gentleness and patience are your sources of strength. May your kindness be your greatest magic.',
+        Ravenclaw: 'The desire for wisdom and exploration will guide you. Knowledge is true magic.',
+        Slytherin: 'Only true determination and belief can control your destiny.',
       }
       return messages[house]
     }
@@ -299,13 +329,13 @@ export default defineComponent({
 
     async function saveProfile(): Promise<void> {
       const profileText = `
-巫师档案
-姓名: ${wizardName.value}
-学院: ${wizardProfile.value.house}
-魔杖: ${wizardProfile.value.wand}
-守护神: ${wizardProfile.value.patronus}
-专属咒语: ${wizardProfile.value.spell}
-导师寄语: ${wizardProfile.value.mentorMessage}
+Wizard Profile
+Name: ${wizardName.value}
+House: ${wizardProfile.value.house}
+Wand: ${wizardProfile.value.wand}
+Patronus: ${wizardProfile.value.patronus}
+Signature Spell: ${wizardProfile.value.spell}
+Mentor's Message: ${wizardProfile.value.mentorMessage}
       `.trim()
 
       const blob = new Blob([profileText], { type: 'text/plain' })
@@ -317,7 +347,7 @@ export default defineComponent({
       URL.revokeObjectURL(url)
 
       const speech = new SpeechSynthesisUtterance(profileText)
-      speech.lang = 'zh-CN'
+      speech.lang = 'en-US'
       speechSynthesis.speak(speech)
     }
 
