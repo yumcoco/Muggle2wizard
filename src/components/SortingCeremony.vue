@@ -88,9 +88,16 @@
 
             <!-- Step 6: Result -->
             <div v-if="step === 5" key="result" class="ceremony-step result">
-              <div class="wizard-profile" :class="wizardProfile.house.toLowerCase()">
+              <div
+                class="wizard-profile"
+                :class="wizardProfile.house.toLowerCase()"
+                :style="{ backgroundImage: `url(${houseBackgroundImage})` }"
+              >
                 <div class="profile-header">
-                  <h2>{{ wizardProfile.house }} HOUSE</h2>
+                  <!-- Dynamic Title Color -->
+                  <h2 class="wizard-profile-title" :style="{ color: houseThemeColor }">
+                    {{ wizardProfile.house }} HOUSE
+                  </h2>
                 </div>
 
                 <div class="profile-content">
@@ -166,15 +173,42 @@ export default defineComponent({
     const dialogText = ref<HTMLParagraphElement | null>(null)
     const wizardName = ref('')
 
+    // Dynamic theme color based on house
+    const houseThemeColor = computed(() => {
+      if (!wizardProfile.value.house) return '#ffffff' // Default color
+      return wizardProfile.value.house.toLowerCase() === 'gryffindor'
+        ? '#740001'
+        : wizardProfile.value.house.toLowerCase() === 'hufflepuff'
+          ? '#372e29'
+          : wizardProfile.value.house.toLowerCase() === 'ravenclaw'
+            ? '#000a90'
+            : '#1a472a' // Slytherin
+    })
+
+    const houseBackgroundImage = computed(() => {
+      const house = wizardProfile.value.house.toLowerCase()
+      return house === 'gryffindor'
+        ? '/assets/Gryffindorbg.png'
+        : house === 'hufflepuff'
+          ? '/assets/Hufflepuffbg.png'
+          : house === 'ravenclaw'
+            ? '/assets/Ravenclawbg.png'
+            : '/assets/Slytherinbg.png' // 默认 Slytherin
+    })
+
     // Audio related
     let bgMusic: HTMLAudioElement | null = null
     let sortingSound: HTMLAudioElement | null = null
     let spellSound: HTMLAudioElement | null = null
     let typingSound: HTMLAudioElement | null = null
 
-    onMounted(() => {
+    onMounted(async () => {
       bgMusic = new Audio('/assets/hogwarts-theme.mp3')
       bgMusic.loop = true
+      if (dialogText.value && step.value === 0) {
+        await typeText(currentDialog.value, dialogText.value)
+      }
+
       sortingSound = new Audio('/assets/sorting-sound.wav')
       spellSound = new Audio('/assets/spell-sound.wav')
       typingSound = new Audio('/assets/typing-sound.mp3')
@@ -243,14 +277,11 @@ export default defineComponent({
     }
 
     async function typeText(text: string, element: HTMLElement): Promise<void> {
-      typingSound?.play()
-      element.textContent = ''
+      element.textContent = '' // 清空现有内容
       for (const char of text) {
-        element.textContent += char
-        await new Promise((resolve) => setTimeout(resolve, 50))
+        element.textContent += char // 逐字追加字符
+        await new Promise((resolve) => setTimeout(resolve, 50)) // 每个字间隔 50ms
       }
-      typingSound?.pause()
-      typingSound?.currentTime && (typingSound.currentTime = 0)
     }
 
     async function nextStep(): Promise<void> {
@@ -386,6 +417,8 @@ Mentor's Message: ${wizardProfile.value.mentorMessage}
       spellElement,
       dialogText,
       wizardName,
+      houseThemeColor,
+      houseBackgroundImage,
       currentTitle,
       currentSpeaker,
       currentDialog,
@@ -658,6 +691,14 @@ Mentor's Message: ${wizardProfile.value.mentorMessage}
   opacity: 0.3;
   transition: all 0.5s ease;
 }
+.wizard-profile-title {
+  font-size: 1.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  margin: 0;
+  transition: color 0.3s ease-in-out;
+  padding-top: 180px;
+}
 
 .house-banner.gryffindor {
   background-image: url('public/assets/Gryffindor.png');
@@ -689,9 +730,9 @@ Mentor's Message: ${wizardProfile.value.mentorMessage}
 
 .wizard-profile {
   width: 100%;
-  max-width: 800px;
+  max-width: 1024px;
   aspect-ratio: 1.4/1;
-  background: url('public/assets/hufflepuff-banner.png') no-repeat center center;
+
   background-size: cover;
   padding: 2rem;
   border-radius: 1rem;
@@ -720,7 +761,6 @@ Mentor's Message: ${wizardProfile.value.mentorMessage}
 
 .profile-header h2 {
   font-size: 1.5rem;
-  color: #740001;
   text-transform: uppercase;
   letter-spacing: 0.2em;
   margin: 0;
@@ -739,7 +779,7 @@ Mentor's Message: ${wizardProfile.value.mentorMessage}
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
-  padding-top: 100px;
+  padding-top: 10px;
 }
 
 .gryffindor .house-crest {
@@ -761,7 +801,7 @@ Mentor's Message: ${wizardProfile.value.mentorMessage}
 .profile-details {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 0.01rem;
 }
 
 .detail-row {
@@ -807,15 +847,14 @@ Mentor's Message: ${wizardProfile.value.mentorMessage}
 .signature-line {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  margin-top: 2rem;
+  gap: 0.5rem;
+  margin-top: 1rem;
 }
 
 .seal {
-  width: 60px;
-  height: 60px;
-  background: url('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/hogwarts-seal-zNPU6k0RhzWQpXGM8K9a6H0LPWxE4Y.png')
-    no-repeat center center;
+  width: 90px;
+  height: 90px;
+  background: url('public/assets/seal.png') no-repeat center center;
   background-size: contain;
 }
 
