@@ -17,7 +17,7 @@
       <div class="ceremony-card" :class="{ show: true }">
         <!-- Header -->
         <h1 class="ceremony-title">
-          {{ step === 0 ? 'Hogwarts Sorting Ceremony' : currentTitle }}
+          {{ step === 0 ? 'Muggle Transformer' : currentTitle }}
         </h1>
 
         <!-- Character Dialog -->
@@ -49,6 +49,11 @@
                 <h3>{{ wizardName }}</h3>
               </div>
               <input v-model="userData.mbti" placeholder="Your MBTI type" class="magical-input" />
+              <input
+                v-model="userData.gender"
+                placeholder="Your Gender female or male"
+                class="magical-input"
+              />
               <button @click="nextStep" class="magical-button">Next</button>
             </div>
 
@@ -160,6 +165,7 @@ export default defineComponent({
     const userData = ref<UserData>({
       name: '',
       mbti: '',
+      gender: '',
       scene: '',
       wish: '',
     })
@@ -227,7 +233,7 @@ export default defineComponent({
 
     const currentTitle = computed(() => {
       const titles = [
-        'Hogwarts Sorting Ceremony',
+        'Muggle Transformer',
         'Identity Confirmation',
         'Scene Selection',
         'Wizard Wish',
