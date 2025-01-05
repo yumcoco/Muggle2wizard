@@ -150,6 +150,7 @@
 import { defineComponent, ref, computed, onMounted } from 'vue'
 import type { UserData, WizardProfile, House } from '@types'
 import { houses } from '@/types'
+import axios from 'axios';
 
 export default defineComponent({
   name: 'SortingCeremony',
@@ -384,16 +385,23 @@ export default defineComponent({
       step.value++
     }
 
+
+
+
+
+
+
+
     async function saveProfile(): Promise<void> {
       const profileText = `
-Wizard Profile
-Name: ${wizardName.value}
-House: ${wizardProfile.value.house}
-Wand: ${wizardProfile.value.wand}
-Patronus: ${wizardProfile.value.patronus}
-Signature Spell: ${wizardProfile.value.spell}
-Mentor's Message: ${wizardProfile.value.mentorMessage}
-      `.trim()
+      Wizard Profile
+      Name: ${wizardName.value}
+      House: ${wizardProfile.value.house}
+      Wand: ${wizardProfile.value.wand}
+      Patronus: ${wizardProfile.value.patronus}
+      Signature Spell: ${wizardProfile.value.spell}
+      Mentor's Message: ${wizardProfile.value.mentorMessage}
+            `.trim()
 
       const blob = new Blob([profileText], { type: 'text/plain' })
       const url = URL.createObjectURL(blob)
@@ -406,6 +414,33 @@ Mentor's Message: ${wizardProfile.value.mentorMessage}
       const speech = new SpeechSynthesisUtterance(profileText)
       speech.lang = 'en-US'
       speechSynthesis.speak(speech)
+    }
+
+    async function postProfile(data: string): Promise<void> {
+      const profileText = `
+        Wizard Profile
+        Name: ${wizardName.value}
+        House: ${wizardProfile.value.house}
+        Wand: ${wizardProfile.value.wand}
+        Patronus: ${wizardProfile.value.patronus}
+        Signature Spell: ${wizardProfile.value.spell}
+        Mentor's Message: ${wizardProfile.value.mentorMessage}
+      `.trim();
+
+      console.log(data);
+      // ####写入后端post
+      const url = 'https://example.com/api/profiles';
+
+      try {
+        const response = await axios.post(url, {
+          profileText: profileText,
+          extraData: data,
+        });
+
+        console.log('Profile posted successfully:', response.data);
+      } catch (error) {
+        console.error('Error posting profile:', error);
+      }
     }
 
     return {
@@ -426,6 +461,7 @@ Mentor's Message: ${wizardProfile.value.mentorMessage}
       generateWizardName,
       nextStep,
       saveProfile,
+      postProfile,
     }
   },
 })
