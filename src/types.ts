@@ -4,6 +4,7 @@ export interface UserData {
   mbti: string
   scene: string
   wish: string
+  score: string
 }
 
 export interface WizardProfile {

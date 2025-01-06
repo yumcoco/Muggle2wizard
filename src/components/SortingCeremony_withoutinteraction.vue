@@ -17,14 +17,14 @@
       <div class="ceremony-card" :class="{ show: true }">
         <!-- Header -->
         <h1 class="ceremony-title">
-          {{ step === 0 ? 'Hogwarts Sorting Ceremony' : currentTitle }}
+          {{ step === 0 ? 'Muggle Transformer' : currentTitle }}
         </h1>
 
         <!-- Character Dialog -->
         <div class="character-dialog" :class="{ show: showDialog }">
           <div class="character-avatar" :class="currentSpeaker"></div>
           <div class="dialog-bubble">
-            <p>{{ currentDialog }}</p>
+            <p ref="dialogText"></p>
           </div>
         </div>
 
@@ -49,6 +49,11 @@
                 <h3>{{ wizardName }}</h3>
               </div>
               <input v-model="userData.mbti" placeholder="Your MBTI type" class="magical-input" />
+              <input
+                v-model="userData.gender"
+                placeholder="Your Gender female or male"
+                class="magical-input"
+              />
               <button @click="nextStep" class="magical-button">Next</button>
             </div>
 
@@ -88,19 +93,55 @@
 
             <!-- Step 6: Result -->
             <div v-if="step === 5" key="result" class="ceremony-step result">
-              <div class="wizard-profile">
-                <h2>{{ wizardName }}'s Wizard Profile</h2>
+              <div
+                class="wizard-profile"
+                :class="wizardProfile.house.toLowerCase()"
+                :style="{ backgroundImage: `url(${houseBackgroundImage})` }"
+              >
+                <div class="profile-header">
+                  <!-- Dynamic Title Color -->
+                  <h2 class="wizard-profile-title" :style="{ color: houseThemeColor }">
+                    {{ wizardProfile.house }} HOUSE
+                  </h2>
+                </div>
+
                 <div class="profile-content">
-                  <p>House: {{ wizardProfile.house }}</p>
-                  <p>Wand: {{ wizardProfile.wand }}</p>
-                  <p>Patronus: {{ wizardProfile.patronus }}</p>
-                  <p>Signature Spell: {{ wizardProfile.spell }}</p>
-                  <div class="mentor-message">
-                    <h3>Mentor's Message</h3>
-                    <p>{{ wizardProfile.mentorMessage }}</p>
+                  <div class="house-crest"></div>
+
+                  <div class="profile-details">
+                    <div class="detail-row">
+                      <label>NAME:</label>
+                      <span>{{ wizardName }}</span>
+                    </div>
+
+                    <div class="detail-row">
+                      <label>WAND:</label>
+                      <span>{{ wizardProfile.wand }}</span>
+                    </div>
+
+                    <div class="detail-row">
+                      <label>PATRONUS:</label>
+                      <span>{{ wizardProfile.patronus }}</span>
+                    </div>
+
+                    <div class="detail-row">
+                      <label>SIGNATURE SPELL:</label>
+                      <span>{{ wizardProfile.spell }}</span>
+                    </div>
+
+                    <div class="mentor-message">
+                      <h3>MENTOR'S MESSAGE:</h3>
+                      <p>{{ wizardProfile.mentorMessage }}</p>
+                    </div>
+
+                    <div class="signature-line">
+                      <div class="seal"></div>
+                      <div class="line"></div>
+                    </div>
                   </div>
                 </div>
-                <button @click="saveProfile" class="magical-button">Save Profile</button>
+
+                <button @click="saveProfile" class="magical-button">Save Certificate</button>
               </div>
             </div>
           </TransitionGroup>
@@ -123,6 +164,7 @@ export default defineComponent({
     const userData = ref<UserData>({
       name: '',
       mbti: '',
+      gender: '',
       scene: '',
       wish: '',
     })
@@ -134,26 +176,49 @@ export default defineComponent({
       mentorMessage: '',
     })
     const spellElement = ref<HTMLParagraphElement | null>(null)
+    const dialogText = ref<HTMLParagraphElement | null>(null)
     const wizardName = ref('')
+
+    // Dynamic theme color based on house
+    const houseThemeColor = computed(() => {
+      if (!wizardProfile.value.house) return '#ffffff' // Default color
+      return wizardProfile.value.house.toLowerCase() === 'gryffindor'
+        ? '#740001'
+        : wizardProfile.value.house.toLowerCase() === 'hufflepuff'
+          ? '#372e29'
+          : wizardProfile.value.house.toLowerCase() === 'ravenclaw'
+            ? '#000a90'
+            : '#1a472a' // Slytherin
+    })
+
+    const houseBackgroundImage = computed(() => {
+      const house = wizardProfile.value.house.toLowerCase()
+      return house === 'gryffindor'
+        ? '/assets/Gryffindorbg.png'
+        : house === 'hufflepuff'
+          ? '/assets/Hufflepuffbg.png'
+          : house === 'ravenclaw'
+            ? '/assets/Ravenclawbg.png'
+            : '/assets/Slytherinbg.png' // 默认 Slytherin
+    })
 
     // Audio related
     let bgMusic: HTMLAudioElement | null = null
     let sortingSound: HTMLAudioElement | null = null
     let spellSound: HTMLAudioElement | null = null
+    let typingSound: HTMLAudioElement | null = null
 
-    onMounted(() => {
-      bgMusic = new Audio('public/assets/hogwarts-theme.mp3')
+    onMounted(async () => {
+      bgMusic = new Audio('/assets/hogwarts-theme.mp3')
       bgMusic.loop = true
-      bgMusic.addEventListener('canplaythrough', () => {
-        console.log('BGM is ready to play.')
-      })
-      bgMusic.addEventListener('error', (e) => {
-        console.error('Failed to load BGM:', e)
-      })
-      bgMusic.play()
+      if (dialogText.value && step.value === 0) {
+        await typeText(currentDialog.value, dialogText.value)
+      }
 
-      sortingSound = new Audio('public/assets/sorting-sound.wav')
-      spellSound = new Audio('public/assets/spell-sound.wav')
+      sortingSound = new Audio('/assets/sorting-sound.wav')
+      spellSound = new Audio('/assets/spell-sound.wav')
+      typingSound = new Audio('/assets/typing-sound.mp3')
+      typingSound.loop = true
 
       function handleUserInteraction() {
         bgMusic?.play().catch((error) => {
@@ -162,13 +227,12 @@ export default defineComponent({
         document.removeEventListener('click', handleUserInteraction)
       }
 
-      // 添加点击事件监听器
       document.addEventListener('click', handleUserInteraction)
     })
 
     const currentTitle = computed(() => {
       const titles = [
-        'Hogwarts Sorting Ceremony',
+        'Muggle Transformer',
         'Identity Confirmation',
         'Scene Selection',
         'Wizard Wish',
@@ -179,8 +243,7 @@ export default defineComponent({
     })
 
     const currentSpeaker = computed(() => {
-      if (step.value === 1 || step.value === 4) return 'sorting-hat'
-      if (step.value === 5) return 'dumbledore'
+      if (step.value >= 1) return 'sorting-hat'
       return 'dobby'
     })
 
@@ -188,7 +251,7 @@ export default defineComponent({
       const dialogs = [
         'Welcome to the magical world, dear Muggle! Please stand before the Sorting Hat and begin your magical journey!',
         'Tell me your name, future wizard. What is your personality like?',
-        'Tell Dobby about your ideal ceremony scene! For example, "ancient forest" or "mystical lake."',
+        'Tell me about your ideal ceremony scene! For example, "ancient forest" or "mystical lake."',
         'Every wizard has a wish deep inside. Tell me yours.',
         'Let’s see which house you belong to...',
         'Congratulations on becoming a real wizard!',
@@ -204,7 +267,7 @@ export default defineComponent({
       if (step.value >= 2 && userData.value.scene) {
         return `url(/generated-scene-${userData.value.scene}.jpg)`
       }
-      return 'url(https://example.com/hogwarts-bg.jpg)'
+      return 'public/assets/hogwarts-background.jpg'
     }
 
     function generateWizardName(): void {
@@ -219,6 +282,14 @@ export default defineComponent({
       }
     }
 
+    async function typeText(text: string, element: HTMLElement): Promise<void> {
+      element.textContent = '' // 清空现有内容
+      for (const char of text) {
+        element.textContent += char // 逐字追加字符
+        await new Promise((resolve) => setTimeout(resolve, 50)) // 每个字间隔 50ms
+      }
+    }
+
     async function nextStep(): Promise<void> {
       if (step.value === 0) {
         bgMusic?.play()
@@ -228,25 +299,21 @@ export default defineComponent({
       } else {
         step.value++
         showDialog.value = false
-        setTimeout(() => {
-          showDialog.value = true
-        }, 500)
+        await new Promise((resolve) => setTimeout(resolve, 500))
+        showDialog.value = true
+        if (dialogText.value) {
+          await typeText(currentDialog.value, dialogText.value)
+        }
       }
     }
 
     async function startSortingCeremony(): Promise<void> {
       step.value++
-      // sortingSound?.play()
       if (bgMusic) {
-        bgMusic.pause() // 暂停背景音乐
+        bgMusic.pause()
       }
-      sortingSound?.play() // 播放分院帽音效
+      sortingSound?.play()
 
-      // sortingSound?.addEventListener('ended', () => {
-      //   if (bgMusic) {
-      //     bgMusic.play() // 恢复背景音乐
-      //   }
-      // })
       await new Promise((resolve) => setTimeout(resolve, 5000))
 
       const randomHouse = houses[Math.floor(Math.random() * houses.length)]
@@ -313,12 +380,8 @@ export default defineComponent({
       await new Promise((resolve) => setTimeout(resolve, 1000))
       spellSound?.play()
 
-      const spellText = spell.split('')
       if (spellElement.value) {
-        for (const char of spellText) {
-          await new Promise((resolve) => setTimeout(resolve, 200))
-          spellElement.value.textContent += char
-        }
+        await typeText(spell, spellElement.value)
       } else {
         console.warn('Spell element not found')
       }
@@ -358,7 +421,10 @@ Mentor's Message: ${wizardProfile.value.mentorMessage}
       wizardProfile,
       houses,
       spellElement,
+      dialogText,
       wizardName,
+      houseThemeColor,
+      houseBackgroundImage,
       currentTitle,
       currentSpeaker,
       currentDialog,
@@ -371,8 +437,7 @@ Mentor's Message: ${wizardProfile.value.mentorMessage}
 })
 </script>
 
-<!-- 样式代码如下 -->
-
+<!-- WEB UX -->
 <style scoped>
 .sorting-ceremony {
   min-height: 100vh;
@@ -435,14 +500,14 @@ Mentor's Message: ${wizardProfile.value.mentorMessage}
 .floating-dumbledore {
   bottom: 2rem;
   left: 2rem;
-  background-image: url('/dumbledore.png');
+  background-image: url('public/assets/dobby-avatar.png');
 }
 
 .floating-sorting-hat {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background-image: url('/sorting-hat.png');
+  background-image: url('public/assets/sorting-hat.png');
 }
 
 .animate-owl {
@@ -482,7 +547,7 @@ Mentor's Message: ${wizardProfile.value.mentorMessage}
   text-align: center;
   color: #ffd700;
   margin-bottom: 2rem;
-  font-family: 'Times New Roman', serif;
+  font-family: 'Cinzel', serif;
   text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
 }
 
@@ -515,11 +580,11 @@ Mentor's Message: ${wizardProfile.value.mentorMessage}
 }
 
 .character-avatar.sorting-hat {
-  background-image: url('/sorting-hat.png');
+  background-image: url('public/assets/sorting-hat.png');
 }
 
 .character-avatar.dumbledore {
-  background-image: url('/dumbledore.png');
+  background-image: url('public/assets/dobby-avatar.png');
 }
 
 .dialog-bubble {
@@ -575,6 +640,7 @@ Mentor's Message: ${wizardProfile.value.mentorMessage}
   transition: all 0.3s ease;
   text-transform: uppercase;
   letter-spacing: 1px;
+  font-family: 'Cinzel', serif;
 }
 
 .magical-button:hover {
@@ -597,7 +663,7 @@ Mentor's Message: ${wizardProfile.value.mentorMessage}
 .sorting-hat {
   width: 150px;
   height: 150px;
-  background-image: url('/sorting-hat.png');
+  background-image: url('public/assets/sorting-hat.png');
   background-size: contain;
   background-repeat: no-repeat;
   animation: wobble 2s ease-in-out infinite;
@@ -609,7 +675,7 @@ Mentor's Message: ${wizardProfile.value.mentorMessage}
   left: 0;
   width: 100%;
   height: 100%;
-  background-image: url('/magic-sparkles.png');
+  background-image: url('public/assets/magic-sparkles.png');
   background-size: 100% 100%;
   opacity: 0;
   animation: sparkle 3s ease-in-out infinite;
@@ -631,18 +697,26 @@ Mentor's Message: ${wizardProfile.value.mentorMessage}
   opacity: 0.3;
   transition: all 0.5s ease;
 }
+.wizard-profile-title {
+  font-size: 1.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  margin: 0;
+  transition: color 0.3s ease-in-out;
+  padding-top: 180px;
+}
 
 .house-banner.gryffindor {
-  background-image: url('/gryffindor-banner.png');
+  background-image: url('public/assets/Gryffindor.png');
 }
 .house-banner.hufflepuff {
-  background-image: url('/hufflepuff-banner.png');
+  background-image: url('public/assets/Hufflepuff.png');
 }
 .house-banner.ravenclaw {
-  background-image: url('/ravenclaw-banner.png');
+  background-image: url('public/assets/Ravenclaw.png');
 }
 .house-banner.slytherin {
-  background-image: url('/slytherin-banner.png');
+  background-image: url('public/assets/Slytherin.png');
 }
 
 .house-banner.revealed {
@@ -662,77 +736,164 @@ Mentor's Message: ${wizardProfile.value.mentorMessage}
 
 .wizard-profile {
   width: 100%;
-  text-align: left;
+  max-width: 1024px;
+  aspect-ratio: 1.4/1;
+
+  background-size: cover;
+  padding: 2rem;
+  border-radius: 1rem;
+  position: relative;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+  font-family: 'Cinzel', serif;
+}
+
+.wizard-profile::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border: 2rem solid transparent;
+  border-image: url('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/certificate-border-red-K0rXXI8j0d3GvpQfLvkK4GzpXtWxpR.png')
+    30 stretch;
+  pointer-events: none;
+}
+
+.profile-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.profile-header h2 {
+  font-size: 1.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  margin: 0;
 }
 
 .profile-content {
-  background: rgba(255, 255, 255, 0.1);
-  padding: 1.5rem;
-  border-radius: 1rem;
-  margin: 1rem 0;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2rem;
+  padding: 0 1rem;
+}
+
+.house-crest {
+  width: 100px;
+  height: 100px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  padding-top: 10px;
+}
+
+.gryffindor .house-crest {
+  background-image: url('public/assets/user.png');
+}
+
+.hufflepuff .house-crest {
+  background-image: url('public/assets/user.png');
+}
+
+.ravenclaw .house-crest {
+  background-image: url('public/assets/user.png');
+}
+
+.slytherin .house-crest {
+  background-image: url('public/assets/user.png');
+}
+
+.profile-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.01rem;
+}
+
+.detail-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.detail-row label {
+  font-size: 0.9rem;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.detail-row span {
+  font-size: 1.2rem;
+  color: #111;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+  padding-bottom: 0.5rem;
 }
 
 .mentor-message {
-  margin-top: 1.5rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid rgba(255, 215, 0, 0.3);
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 2px solid rgba(0, 0, 0, 0.1);
 }
 
-.wizard-name-reveal {
-  background: rgba(255, 215, 0, 0.1);
-  padding: 1rem;
-  border-radius: 0.5rem;
+.mentor-message h3 {
+  font-size: 1rem;
+  color: #666;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.mentor-message p {
+  font-style: italic;
+  color: #111;
+  line-height: 1.6;
+}
+
+.signature-line {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   margin-top: 1rem;
-  text-align: center;
 }
 
-.wizard-name-reveal h3 {
-  font-size: 1.5rem;
-  color: #ffd700;
-  margin-top: 0.5rem;
+.seal {
+  width: 90px;
+  height: 90px;
+  background: url('public/assets/seal.png') no-repeat center center;
+  background-size: contain;
 }
 
-/* Animations */
-@keyframes float {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-20px);
-  }
+.line {
+  flex-grow: 1;
+  height: 1px;
+  background: rgba(0, 0, 0, 0.3);
 }
 
-@keyframes wobble {
-  0%,
-  100% {
-    transform: rotate(-5deg);
-  }
-  50% {
-    transform: rotate(5deg);
-  }
+/* House-specific colors */
+.gryffindor {
+  --house-color: #740001;
+}
+.hufflepuff {
+  --house-color: #372e29;
+}
+.ravenclaw {
+  --house-color: #000a90;
+}
+.slytherin {
+  --house-color: #1a472a;
 }
 
-@keyframes sparkle {
-  0%,
-  100% {
-    opacity: 0;
-    transform: scale(0.8);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.2);
-  }
-}
-
-.fade-enter-active,
-.fade-leave-active {
-  transition: all 0.5s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-  transform: translateY(30px);
+.magical-button {
+  padding: 1rem 2rem;
+  border: none;
+  border-radius: 0.5rem;
+  background: linear-gradient(45deg, #ffd700, #ff8c00);
+  color: #000;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 </style>

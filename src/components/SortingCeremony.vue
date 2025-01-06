@@ -9,7 +9,7 @@
     <div class="floating-characters">
       <div class="floating-owl" :class="{ 'animate-owl': step > 0 }"></div>
       <div class="floating-dumbledore" :class="{ show: step > 3 }"></div>
-      <div class="floating-sorting-hat" :class="{ show: step > 1 && step < 5 }"></div>
+      <div class="floating-sorting-hat" :class="{ show: step > 1 && step < 9 }"></div>
     </div>
 
     <!-- Main Content Card -->
@@ -31,12 +31,12 @@
         <!-- Form Content -->
         <div class="ceremony-content">
           <TransitionGroup name="fade">
-            <!-- Step 1: Welcome -->
+            <!-- Step 0: Welcome -->
             <div v-if="step === 0" key="welcome" class="ceremony-step">
               <button @click="nextStep" class="magical-button">Start Ceremony</button>
             </div>
 
-            <!-- Step 2: Name & MBTI -->
+            <!-- Step 1: Name & MBTI -->
             <div v-if="step === 1" key="personal-info" class="ceremony-step">
               <input
                 v-model="userData.name"
@@ -51,13 +51,13 @@
               <input v-model="userData.mbti" placeholder="Your MBTI type" class="magical-input" />
               <input
                 v-model="userData.gender"
-                placeholder="Your Gender female or male"
+                placeholder="Your Gender (female or male)"
                 class="magical-input"
               />
               <button @click="nextStep" class="magical-button">Next</button>
             </div>
 
-            <!-- Step 3: Ceremony Scene -->
+            <!-- Step 2: Ceremony Scene -->
             <div v-if="step === 2" key="scene" class="ceremony-step">
               <input
                 v-model="userData.scene"
@@ -67,14 +67,140 @@
               <button @click="nextStep" class="magical-button">Generate Scene</button>
             </div>
 
-            <!-- Step 4: Wizard Wish -->
+            <!-- Step 3: Wizard Wish -->
             <div v-if="step === 3" key="wish" class="ceremony-step">
               <input v-model="userData.wish" placeholder="State your wish" class="magical-input" />
               <button @click="nextStep" class="magical-button">Make a Wish</button>
             </div>
 
-            <!-- Step 5: Sorting Ceremony -->
-            <div v-if="step === 4" key="sorting" class="ceremony-step sorting-animation">
+            <!--
+              =======================================================================
+              NEWLY ADDED GAME STEPS
+              =======================================================================
+            -->
+
+            <!-- Step 4: Spell Knowledge Quiz (2 Questions) -->
+            <div v-if="step === 4" key="quiz-spell-knowledge" class="ceremony-step quiz-step">
+              <h2>Spell Knowledge Quiz</h2>
+              <div
+                v-for="(question, index) in spellQuestions"
+                :key="'spell-' + index"
+                class="quiz-question"
+              >
+                <p>{{ question.question }}</p>
+                <div class="quiz-options">
+                  <label v-for="option in question.options" :key="option" class="quiz-option">
+                    <input
+                      type="radio"
+                      :name="'spell-question-' + index"
+                      :value="option"
+                      v-model="spellAnswers[index]"
+                    />
+                    {{ option }}
+                  </label>
+                </div>
+              </div>
+              <button @click="submitSpellQuiz" class="magical-button">Submit Spell Quiz</button>
+            </div>
+
+            <!-- Step 5: Potion Knowledge Quiz (3 Questions) -->
+            <div v-if="step === 5" key="quiz-potion-knowledge" class="ceremony-step quiz-step">
+              <h2>Potion Knowledge Quiz</h2>
+              <div
+                v-for="(question, index) in potionQuestions"
+                :key="'potion-' + index"
+                class="quiz-question"
+              >
+                <p>{{ question.question }}</p>
+                <div class="quiz-options">
+                  <label v-for="option in question.options" :key="option" class="quiz-option">
+                    <input
+                      type="radio"
+                      :name="'potion-question-' + index"
+                      :value="option"
+                      v-model="potionAnswers[index]"
+                    />
+                    {{ option }}
+                  </label>
+                </div>
+              </div>
+              <button @click="submitPotionQuiz" class="magical-button">Submit Potion Quiz</button>
+            </div>
+
+            <!-- Step 6: Magic Knowledge Quiz (5 Questions) -->
+            <div v-if="step === 6" key="quiz-magic-knowledge" class="ceremony-step quiz-step">
+              <h2>Magic Knowledge Quiz</h2>
+              <div
+                v-for="(question, index) in magicQuestions"
+                :key="'magic-' + index"
+                class="quiz-question"
+              >
+                <p>{{ question.question }}</p>
+                <div class="quiz-options">
+                  <label v-for="option in question.options" :key="option" class="quiz-option">
+                    <input
+                      type="radio"
+                      :name="'magic-question-' + index"
+                      :value="option"
+                      v-model="magicAnswers[index]"
+                    />
+                    {{ option }}
+                  </label>
+                </div>
+              </div>
+              <button @click="submitMagicQuiz" class="magical-button">Submit Magic Quiz</button>
+            </div>
+
+            <!-- Step 7: Lucky Dice Game -->
+            <div v-if="step === 7" key="lucky-dice-game" class="ceremony-step">
+              <h2>Lucky Dice Game</h2>
+              <p>Click to roll a magical dice and add a random score between -50 and +50!</p>
+              <!-- 1. 只可掷一次 -->
+              <button @click="rollDice" class="magical-button" :disabled="diceRolled">
+                Roll Dice
+              </button>
+              <p v-if="diceResult !== null">You rolled: {{ diceResult }}</p>
+              <button
+                v-if="diceResult !== null"
+                @click="finishDiceGame"
+                class="magical-button"
+              >
+                Next
+              </button>
+            </div>
+
+            <!-- Step 8: Game Result -->
+            <div v-if="step === 8" key="game-result" class="ceremony-step">
+              <h2>Game Over</h2>
+              <p>Your total score is: {{ totalScore }}</p>
+              <div v-if="totalScore >= 60">
+                <p>Congratulations! You have unlocked a special avatar and 8-bit background music!</p>
+                <!-- Example placeholder for the custom avatar image -->
+                <img
+                  src="https://via.placeholder.com/150x150?text=Custom+Avatar"
+                  alt="Custom Avatar"
+                  style="border: 2px solid #ffd700; border-radius: 50%;"
+                />
+                <!-- Example placeholder for background music or 8-bit track (pseudo UI) -->
+                <p>8-bit track: <em>Playing your special reward music...</em></p>
+              </div>
+              <div v-else>
+                <p>Sorry, you did not earn the special reward this time.</p>
+              </div>
+              <!-- 2. 点击 Sorting Ceremony 会自动分配学院并显示档案 -->
+              <button @click="goToSortingCeremony" class="magical-button">
+                Sorting Ceremony
+              </button>
+            </div>
+
+            <!--
+              =======================================================================
+              ORIGINAL SORTING CEREMONY STEPS (Renamed to Steps 9 & 10)
+              =======================================================================
+            -->
+
+            <!-- Step 9: Sorting Ceremony -->
+            <div v-if="step === 9" key="sorting" class="ceremony-step sorting-animation">
               <div class="sorting-hat-container">
                 <div class="sorting-hat"></div>
                 <div class="magic-sparkles"></div>
@@ -91,8 +217,8 @@
               </div>
             </div>
 
-            <!-- Step 6: Result -->
-            <div v-if="step === 5" key="result" class="ceremony-step result">
+            <!-- Step 10: Result (Wizard Profile) -->
+            <div v-if="step === 10" key="result" class="ceremony-step result">
               <div
                 class="wizard-profile"
                 :class="wizardProfile.house.toLowerCase()"
@@ -152,15 +278,46 @@
 </template>
 
 <script lang="ts">
+/**
+ * Main SortingCeremony component
+ * This component contains:
+ * 1. Basic user input flow (step 0 ~ step 3)
+ * 2. Newly added Wizard Quiz game (step 4 ~ step 8)
+ * 3. Sorting Ceremony (step 9)
+ * 4. Wizard Profile (step 10)
+ */
+
 import { defineComponent, ref, computed, onMounted } from 'vue'
 import type { UserData, WizardProfile, House } from '@types'
 import { houses } from '@/types'
+import axios from 'axios';
 
 export default defineComponent({
   name: 'SortingCeremony',
   setup() {
+    // ==========================
+    // Step reference
+    // ==========================
+    /**
+     * step:
+     *  0 -> Welcome
+     *  1 -> Name & MBTI
+     *  2 -> Ceremony Scene
+     *  3 -> Wizard Wish
+     *  4 -> Spell Knowledge Quiz
+     *  5 -> Potion Knowledge Quiz
+     *  6 -> Magic Knowledge Quiz
+     *  7 -> Lucky Dice Game
+     *  8 -> Game Result
+     *  9 -> Sorting Ceremony
+     *  10-> Wizard Profile
+     */
     const step = ref(0)
     const showDialog = ref(true)
+
+    // ==========================
+    // User data
+    // ==========================
     const userData = ref<UserData>({
       name: '',
       mbti: '',
@@ -168,6 +325,10 @@ export default defineComponent({
       scene: '',
       wish: '',
     })
+
+    // ==========================
+    // Wizard Profile data
+    // ==========================
     const wizardProfile = ref<WizardProfile>({
       house: '',
       wand: '',
@@ -175,11 +336,26 @@ export default defineComponent({
       spell: '',
       mentorMessage: '',
     })
-    const spellElement = ref<HTMLParagraphElement | null>(null)
-    const dialogText = ref<HTMLParagraphElement | null>(null)
+
     const wizardName = ref('')
 
-    // Dynamic theme color based on house
+    // ==========================
+    // Audio elements
+    // ==========================
+    let bgMusic: HTMLAudioElement | null = null
+    let sortingSound: HTMLAudioElement | null = null
+    let spellSound: HTMLAudioElement | null = null
+    let typingSound: HTMLAudioElement | null = null
+
+    // ==========================
+    // Refs to DOM elements
+    // ==========================
+    const spellElement = ref<HTMLParagraphElement | null>(null)
+    const dialogText = ref<HTMLParagraphElement | null>(null)
+
+    // ==========================
+    // House theme color
+    // ==========================
     const houseThemeColor = computed(() => {
       if (!wizardProfile.value.house) return '#ffffff' // Default color
       return wizardProfile.value.house.toLowerCase() === 'gryffindor'
@@ -191,6 +367,9 @@ export default defineComponent({
             : '#1a472a' // Slytherin
     })
 
+    // ==========================
+    // House background image
+    // ==========================
     const houseBackgroundImage = computed(() => {
       const house = wizardProfile.value.house.toLowerCase()
       return house === 'gryffindor'
@@ -199,19 +378,18 @@ export default defineComponent({
           ? '/assets/Hufflepuffbg.png'
           : house === 'ravenclaw'
             ? '/assets/Ravenclawbg.png'
-            : '/assets/Slytherinbg.png' // 默认 Slytherin
+            : '/assets/Slytherinbg.png' // default Slytherin
     })
 
-    // Audio related
-    let bgMusic: HTMLAudioElement | null = null
-    let sortingSound: HTMLAudioElement | null = null
-    let spellSound: HTMLAudioElement | null = null
-    let typingSound: HTMLAudioElement | null = null
-
+    // ==========================
+    // onMounted Hook
+    // ==========================
     onMounted(async () => {
       bgMusic = new Audio('/assets/hogwarts-theme.mp3')
       bgMusic.loop = true
+
       if (dialogText.value && step.value === 0) {
+        // Type out the welcome text
         await typeText(currentDialog.value, dialogText.value)
       }
 
@@ -220,6 +398,7 @@ export default defineComponent({
       typingSound = new Audio('/assets/typing-sound.mp3')
       typingSound.loop = true
 
+      // Auto-play workaround
       function handleUserInteraction() {
         bgMusic?.play().catch((error) => {
           console.error('Failed to play BGM:', error)
@@ -230,46 +409,86 @@ export default defineComponent({
       document.addEventListener('click', handleUserInteraction)
     })
 
+    // ==========================
+    // Step titles
+    // ==========================
     const currentTitle = computed(() => {
       const titles = [
-        'Muggle Transformer',
-        'Identity Confirmation',
-        'Scene Selection',
-        'Wizard Wish',
-        'Sorting Ceremony',
-        'Wizard Profile',
+        'Muggle Transformer',         // step 0
+        'Identity Confirmation',      // step 1
+        'Scene Selection',            // step 2
+        'Wizard Wish',                // step 3
+        'Spell Knowledge Quiz',       // step 4 (new)
+        'Potion Knowledge Quiz',      // step 5 (new)
+        'Magic Knowledge Quiz',       // step 6 (new)
+        'Lucky Dice Game',            // step 7 (new)
+        'Game Result',                // step 8 (new)
+        'Sorting Ceremony',           // step 9
+        'Wizard Profile',             // step 10
       ]
       return titles[step.value]
     })
 
+    // ==========================
+    // Current speaker for avatar
+    // ==========================
     const currentSpeaker = computed(() => {
-      if (step.value >= 1) return 'sorting-hat'
+      // Use Sorting Hat for steps >=1 and <9
+      // Use Dobby for the first step
+      if (step.value >= 1 && step.value < 9) return 'sorting-hat'
+      if (step.value >= 9) return 'dumbledore'
       return 'dobby'
     })
 
+    // ==========================
+    // Current dialog
+    // ==========================
     const currentDialog = computed(() => {
       const dialogs = [
+        // step 0
         'Welcome to the magical world, dear Muggle! Please stand before the Sorting Hat and begin your magical journey!',
+        // step 1
         'Tell me your name, future wizard. What is your personality like?',
+        // step 2
         'Tell me about your ideal ceremony scene! For example, "ancient forest" or "mystical lake."',
+        // step 3
         'Every wizard has a wish deep inside. Tell me yours.',
+        // step 4
+        'Let’s test your Spell Knowledge! Answer carefully.',
+        // step 5
+        'Now, let’s see your knowledge about Potions!',
+        // step 6
+        'Next, we’ll check your general Magic Knowledge.',
+        // step 7
+        'Time for a Lucky Dice roll! This can add or subtract up to 50 points!',
+        // step 8
+        'Your quiz journey ends here. Let’s see your total score!',
+        // step 9
         'Let’s see which house you belong to...',
+        // step 10
         'Congratulations on becoming a real wizard!',
       ]
       return dialogs[step.value]
     })
 
+    // ==========================
+    // Background style (scene)
+    // ==========================
     const backgroundStyle = computed(() => ({
       backgroundImage: `url(${getBackgroundImage()})`,
     }))
 
     function getBackgroundImage(): string {
       if (step.value >= 2 && userData.value.scene) {
+        // Just a placeholder logic for "generated scene"
         return `url(/generated-scene-${userData.value.scene}.jpg)`
       }
       return 'public/assets/hogwarts-background.jpg'
     }
 
+    // ==========================
+    // Generate wizard name
+    // ==========================
     function generateWizardName(): void {
       if (userData.value.name) {
         const prefixes = ['Albus', 'Minerva', 'Severus', 'Luna', 'Neville', 'Hermione']
@@ -282,21 +501,29 @@ export default defineComponent({
       }
     }
 
+    // ==========================
+    // Type text effect
+    // ==========================
     async function typeText(text: string, element: HTMLElement): Promise<void> {
-      element.textContent = '' // 清空现有内容
+      element.textContent = ''
       for (const char of text) {
-        element.textContent += char // 逐字追加字符
-        await new Promise((resolve) => setTimeout(resolve, 50)) // 每个字间隔 50ms
+        element.textContent += char
+        await new Promise((resolve) => setTimeout(resolve, 50))
       }
     }
 
+    // ==========================
+    // Next step navigation
+    // ==========================
     async function nextStep(): Promise<void> {
+      // Start background music if moving from step 0
       if (step.value === 0) {
         bgMusic?.play()
       }
-      if (step.value === 3) {
-        await startSortingCeremony()
-      } else {
+
+      // If user clicks "Generate Scene" (step 2) or "Make a Wish" (step 3) or "Next" from name input,
+      // just move to the next step
+      if (step.value < 8 && ![3].includes(step.value)) {
         step.value++
         showDialog.value = false
         await new Promise((resolve) => setTimeout(resolve, 500))
@@ -304,18 +531,58 @@ export default defineComponent({
         if (dialogText.value) {
           await typeText(currentDialog.value, dialogText.value)
         }
+        return
       }
+
+      // If user is about to initiate quiz from step 3 => jump to step 4
+      if (step.value === 3) {
+        step.value = 4
+        showDialog.value = false
+        await new Promise((resolve) => setTimeout(resolve, 500))
+        showDialog.value = true
+        if (dialogText.value) {
+          await typeText(currentDialog.value, dialogText.value)
+        }
+        return
+      }
+
+      // If user is at step >= 8, we won't handle it here (we have separate function for sorting)
     }
 
+    /**
+     * 2. 当点击"Sorting Ceremony"时，直接去 step=9 并自动触发学院分配
+     */
+    async function goToSortingCeremony() {
+      // Transition from step 8 -> step 9
+      step.value = 9
+      showDialog.value = false
+      await new Promise((resolve) => setTimeout(resolve, 500))
+      showDialog.value = true
+
+      // Type out sorting ceremony text
+      if (dialogText.value) {
+        await typeText(currentDialog.value, dialogText.value)
+      }
+
+      // 自动执行 Sorting Ceremony
+      await startSortingCeremony()
+    }
+
+    // ==========================
+    // Sorting ceremony flow
+    // ==========================
     async function startSortingCeremony(): Promise<void> {
-      step.value++
+      // Step 9 is sorting animation
+      // Pause BGM, play sorting sound
       if (bgMusic) {
         bgMusic.pause()
       }
       sortingSound?.play()
 
+      // Delay for the sorting animation
       await new Promise((resolve) => setTimeout(resolve, 5000))
 
+      // Randomly assign a house
       const randomHouse = houses[Math.floor(Math.random() * houses.length)]
       const spell = generateSpell()
 
@@ -326,6 +593,8 @@ export default defineComponent({
         spell: spell,
         mentorMessage: getHouseMentorMessage(randomHouse),
       }
+
+      // Reveal which house is assigned + spell
       await revealHouseAndSpell(randomHouse, spell)
     }
 
@@ -342,7 +611,6 @@ export default defineComponent({
       const woods = ['Oak', 'Holly', 'Hawthorn', 'Elm']
       const cores = ['Phoenix Feather', 'Unicorn Hair', 'Dragon Heartstring']
       const lengths = [9, 10, 11, 12, 13, 14]
-
       return (
         `${woods[Math.floor(Math.random() * woods.length)]}, ` +
         `${cores[Math.floor(Math.random() * cores.length)]}, ` +
@@ -357,10 +625,8 @@ export default defineComponent({
 
     function getHouseMentorMessage(house: House): string {
       const messages: Record<House, string> = {
-        Gryffindor:
-          'A brave heart can light up the darkest night. May your strength bring hope to your friends.',
-        Hufflepuff:
-          'Gentleness and patience are your sources of strength. May your kindness be your greatest magic.',
+        Gryffindor: 'A brave heart can light up the darkest night. May your strength bring hope to your friends.',
+        Hufflepuff: 'Gentleness and patience are your sources of strength. May your kindness be your greatest magic.',
         Ravenclaw: 'The desire for wisdom and exploration will guide you. Knowledge is true magic.',
         Slytherin: 'Only true determination and belief can control your destiny.',
       }
@@ -369,7 +635,7 @@ export default defineComponent({
 
     async function revealHouseAndSpell(house: House, spell: string): Promise<void> {
       const houseElement = document.querySelector(
-        `.house-banner.${house.toLowerCase()}`,
+        `.house-banner.${house.toLowerCase()}`
       ) as HTMLElement | null
       if (houseElement) {
         houseElement.classList.add('revealed')
@@ -387,18 +653,22 @@ export default defineComponent({
       }
 
       await new Promise((resolve) => setTimeout(resolve, 1000))
-      step.value++
+      // Move to next step => Wizard profile
+      step.value = 10
     }
 
+    // ==========================
+    // Save Wizard Profile to file + TTS
+    // ==========================
     async function saveProfile(): Promise<void> {
       const profileText = `
-Wizard Profile
-Name: ${wizardName.value}
-House: ${wizardProfile.value.house}
-Wand: ${wizardProfile.value.wand}
-Patronus: ${wizardProfile.value.patronus}
-Signature Spell: ${wizardProfile.value.spell}
-Mentor's Message: ${wizardProfile.value.mentorMessage}
+      Wizard Profile
+      Name: ${wizardName.value}
+      House: ${wizardProfile.value.house}
+      Wand: ${wizardProfile.value.wand}
+      Patronus: ${wizardProfile.value.patronus}
+      Signature Spell: ${wizardProfile.value.spell}
+      Mentor's Message: ${wizardProfile.value.mentorMessage}
       `.trim()
 
       const blob = new Blob([profileText], { type: 'text/plain' })
@@ -409,36 +679,237 @@ Mentor's Message: ${wizardProfile.value.mentorMessage}
       a.click()
       URL.revokeObjectURL(url)
 
+      // Text-to-speech
       const speech = new SpeechSynthesisUtterance(profileText)
       speech.lang = 'en-US'
       speechSynthesis.speak(speech)
     }
 
+    // ==========================
+    // Post Profile to server
+    // ==========================
+    async function postProfile(data: string): Promise<void> {
+      const profileText = `
+        Wizard Profile
+        Name: ${wizardName.value}
+        House: ${wizardProfile.value.house}
+        Wand: ${wizardProfile.value.wand}
+        Patronus: ${wizardProfile.value.patronus}
+        Signature Spell: ${wizardProfile.value.spell}
+        Mentor's Message: ${wizardProfile.value.mentorMessage}
+      `.trim();
+
+      console.log(data);
+      // #### Example Post
+      const url = 'https://example.com/api/profiles';
+
+      try {
+        const response = await axios.post(url, {
+          profileText: profileText,
+          extraData: data,
+        });
+        console.log('Profile posted successfully:', response.data);
+      } catch (error) {
+        console.error('Error posting profile:', error);
+      }
+    }
+
+    // ==========================
+    // NEW GAME LOGIC
+    // ==========================
+    // --- 1) Spell Knowledge Quiz (2 questions) ---
+    const spellQuestions = ref([
+      {
+        question: 'Which spell is used to disarm your opponent?',
+        options: ['Expelliarmus', 'Avada Kedavra'],
+        correctAnswer: 'Expelliarmus',
+      },
+      {
+        question: 'Which spell is used to conjure a Patronus?',
+        options: ['Expecto Patronum', 'Wingardium Leviosa'],
+        correctAnswer: 'Expecto Patronum',
+      },
+    ])
+    const spellAnswers = ref<string[]>(['', ''])
+
+    // --- 2) Potion Knowledge Quiz (3 questions) ---
+    const potionQuestions = ref([
+      {
+        question: 'Which potion grants good luck for a period of time?',
+        options: ['Felix Felicis', 'Polyjuice Potion'],
+        correctAnswer: 'Felix Felicis',
+      },
+      {
+        question: 'Which potion can change a person’s appearance?',
+        options: ['Amortentia', 'Polyjuice Potion'],
+        correctAnswer: 'Polyjuice Potion',
+      },
+      {
+        question: 'Which potion is known as the most powerful love potion?',
+        options: ['Amortentia', 'Wolfsbane Potion'],
+        correctAnswer: 'Amortentia',
+      },
+    ])
+    const potionAnswers = ref<string[]>(['', '', ''])
+
+    // --- 3) Magic Knowledge Quiz (5 questions) ---
+    const magicQuestions = ref([
+      {
+        question: 'Which creature guards the wizard bank, Gringotts?',
+        options: ['Dragons', 'Goblins'],
+        correctAnswer: 'Goblins',
+      },
+      {
+        question: 'Which magical device displays the user’s deepest desire?',
+        options: ['The Mirror of Erised', 'The Sorting Hat'],
+        correctAnswer: 'The Mirror of Erised',
+      },
+      {
+        question: 'Which wizarding sport is played flying on broomsticks?',
+        options: ['Quidditch', 'Gobstones'],
+        correctAnswer: 'Quidditch',
+      },
+      {
+        question: 'What are the non-magical folk called?',
+        options: ['Mudbloods', 'Muggles'],
+        correctAnswer: 'Muggles',
+      },
+      {
+        question: 'Which magical transportation uses a special powder to travel between fireplaces?',
+        options: ['Floo Network', 'Apparition'],
+        correctAnswer: 'Floo Network',
+      },
+    ])
+    const magicAnswers = ref<string[]>(['', '', '', '', ''])
+
+    // --- Score & dice result ---
+    const totalScore = ref(0)
+    // 控制只能掷一次骰子
+    const diceRolled = ref(false)
+    const diceResult = ref<number | null>(null)
+
+    /**
+     * Checks and calculates the score for Spell Knowledge Quiz
+     */
+    function submitSpellQuiz() {
+      let score = 0
+      spellQuestions.value.forEach((q, idx) => {
+        if (spellAnswers.value[idx] === q.correctAnswer) score += 10
+      })
+      totalScore.value += score
+      nextStep()
+    }
+
+    /**
+     * Checks and calculates the score for Potion Knowledge Quiz
+     */
+    function submitPotionQuiz() {
+      let score = 0
+      potionQuestions.value.forEach((q, idx) => {
+        if (potionAnswers.value[idx] === q.correctAnswer) score += 10
+      })
+      totalScore.value += score
+      nextStep()
+    }
+
+    /**
+     * Checks and calculates the score for Magic Knowledge Quiz
+     */
+    function submitMagicQuiz() {
+      let score = 0
+      magicQuestions.value.forEach((q, idx) => {
+        if (magicAnswers.value[idx] === q.correctAnswer) score += 10
+      })
+      totalScore.value += score
+      nextStep()
+    }
+
+    /**
+     * Rolls a dice from -50 to +50, but only once
+     */
+    function rollDice() {
+      if (diceRolled.value) return // 已经掷过就不再掷
+
+      // random from -50 to +50
+      const randomValue = Math.floor(Math.random() * 101) - 50
+      diceResult.value = randomValue
+      totalScore.value += randomValue
+      diceRolled.value = true
+    }
+
+    /**
+     * Proceed to game result step after dice roll
+     */
+    function finishDiceGame() {
+      step.value = 8
+      showDialog.value = false
+      setTimeout(async () => {
+        showDialog.value = true
+        if (dialogText.value) {
+          await typeText(currentDialog.value, dialogText.value)
+        }
+      }, 500)
+    }
+
     return {
+      // Steps
       step,
       showDialog,
+
+      // Data
       userData,
       wizardProfile,
+      wizardName,
       houses,
+
+      // Refs
       spellElement,
       dialogText,
-      wizardName,
+
+      // Computed
       houseThemeColor,
       houseBackgroundImage,
       currentTitle,
       currentSpeaker,
       currentDialog,
       backgroundStyle,
+
+      // Functions (common flow)
       generateWizardName,
       nextStep,
       saveProfile,
+      postProfile,
+
+      // Sorting
+      goToSortingCeremony,
+      startSortingCeremony,
+
+      // Game logic
+      spellQuestions,
+      spellAnswers,
+      potionQuestions,
+      potionAnswers,
+      magicQuestions,
+      magicAnswers,
+      totalScore,
+      diceResult,
+      diceRolled,
+      submitSpellQuiz,
+      submitPotionQuiz,
+      submitMagicQuiz,
+      rollDice,
+      finishDiceGame,
     }
   },
 })
 </script>
 
-<!-- WEB UX -->
 <style scoped>
+/*
+  -------------------------------------------
+  Overall page style
+  -------------------------------------------
+*/
 .sorting-ceremony {
   min-height: 100vh;
   position: relative;
@@ -519,6 +990,11 @@ Mentor's Message: ${wizardProfile.value.mentorMessage}
   opacity: 1;
 }
 
+/*
+  -------------------------------------------
+  Ceremony container & card
+  -------------------------------------------
+*/
 .ceremony-container {
   width: 90%;
   max-width: 800px;
@@ -542,6 +1018,11 @@ Mentor's Message: ${wizardProfile.value.mentorMessage}
   opacity: 1;
 }
 
+/*
+  -------------------------------------------
+  Titles & text
+  -------------------------------------------
+*/
 .ceremony-title {
   font-size: 2.5rem;
   text-align: center;
@@ -566,6 +1047,11 @@ Mentor's Message: ${wizardProfile.value.mentorMessage}
   transform: translateY(0);
 }
 
+/*
+  -------------------------------------------
+  Avatar icons
+  -------------------------------------------
+*/
 .character-avatar {
   width: 80px;
   height: 80px;
@@ -605,6 +1091,11 @@ Mentor's Message: ${wizardProfile.value.mentorMessage}
   border-color: transparent rgba(255, 255, 255, 0.1) transparent transparent;
 }
 
+/*
+  -------------------------------------------
+  Inputs & Buttons
+  -------------------------------------------
+*/
 .ceremony-step {
   display: flex;
   flex-direction: column;
@@ -643,11 +1134,21 @@ Mentor's Message: ${wizardProfile.value.mentorMessage}
   font-family: 'Cinzel', serif;
 }
 
-.magical-button:hover {
+.magical-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.magical-button:hover:enabled {
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
 }
 
+/*
+  -------------------------------------------
+  Sorting Ceremony Animations
+  -------------------------------------------
+*/
 .sorting-animation {
   position: relative;
   height: 300px;
@@ -697,14 +1198,6 @@ Mentor's Message: ${wizardProfile.value.mentorMessage}
   opacity: 0.3;
   transition: all 0.5s ease;
 }
-.wizard-profile-title {
-  font-size: 1.5rem;
-  text-transform: uppercase;
-  letter-spacing: 0.2em;
-  margin: 0;
-  transition: color 0.3s ease-in-out;
-  padding-top: 180px;
-}
 
 .house-banner.gryffindor {
   background-image: url('public/assets/Gryffindor.png');
@@ -734,11 +1227,15 @@ Mentor's Message: ${wizardProfile.value.mentorMessage}
   text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
 }
 
+/*
+  -------------------------------------------
+  Wizard Profile
+  -------------------------------------------
+*/
 .wizard-profile {
   width: 100%;
   max-width: 1024px;
   aspect-ratio: 1.4/1;
-
   background-size: cover;
   padding: 2rem;
   border-radius: 1rem;
@@ -770,6 +1267,7 @@ Mentor's Message: ${wizardProfile.value.mentorMessage}
   text-transform: uppercase;
   letter-spacing: 0.2em;
   margin: 0;
+  padding-top: 180px;
 }
 
 .profile-content {
@@ -777,6 +1275,7 @@ Mentor's Message: ${wizardProfile.value.mentorMessage}
   grid-template-columns: auto 1fr;
   gap: 2rem;
   padding: 0 1rem;
+  padding-top: 1px;
 }
 
 .house-crest {
@@ -884,16 +1383,67 @@ Mentor's Message: ${wizardProfile.value.mentorMessage}
   --house-color: #1a472a;
 }
 
-.magical-button {
-  padding: 1rem 2rem;
-  border: none;
+/*
+  -------------------------------------------
+  Quizzes
+  -------------------------------------------
+*/
+.quiz-step {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.quiz-question {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 1rem;
   border-radius: 0.5rem;
-  background: linear-gradient(45deg, #ffd700, #ff8c00);
-  color: #000;
-  font-size: 1.1rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+  margin-bottom: 1rem;
+  text-align: left;
+}
+
+.quiz-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.quiz-option input {
+  margin-right: 0.5rem;
+}
+
+/*
+  -------------------------------------------
+  Keyframes
+  -------------------------------------------
+*/
+@keyframes float {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-15px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes wobble {
+  0%, 100% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  50% {
+    transform: translate(-50%, -50%) rotate(5deg);
+  }
+}
+
+@keyframes sparkle {
+  0%, 100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
 }
 </style>
