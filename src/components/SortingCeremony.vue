@@ -657,9 +657,19 @@ export default defineComponent({
       step.value = 10
     }
 
+<<<<<<< HEAD
     // ==========================
     // Save Wizard Profile to file + TTS
     // ==========================
+=======
+
+
+
+
+
+
+
+>>>>>>> 00227aaa8b444030b438262605a77bec994d2b32
     async function saveProfile(): Promise<void> {
       const profileText = `
       Wizard Profile
@@ -669,7 +679,11 @@ export default defineComponent({
       Patronus: ${wizardProfile.value.patronus}
       Signature Spell: ${wizardProfile.value.spell}
       Mentor's Message: ${wizardProfile.value.mentorMessage}
+<<<<<<< HEAD
       `.trim()
+=======
+            `.trim()
+>>>>>>> 00227aaa8b444030b438262605a77bec994d2b32
 
       const blob = new Blob([profileText], { type: 'text/plain' })
       const url = URL.createObjectURL(blob)
@@ -685,9 +699,12 @@ export default defineComponent({
       speechSynthesis.speak(speech)
     }
 
+<<<<<<< HEAD
     // ==========================
     // Post Profile to server
     // ==========================
+=======
+>>>>>>> 00227aaa8b444030b438262605a77bec994d2b32
     async function postProfile(data: string): Promise<void> {
       const profileText = `
         Wizard Profile
@@ -700,7 +717,11 @@ export default defineComponent({
       `.trim();
 
       console.log(data);
+<<<<<<< HEAD
       // #### Example Post
+=======
+      // ####写入后端post
+>>>>>>> 00227aaa8b444030b438262605a77bec994d2b32
       const url = 'https://example.com/api/profiles';
 
       try {
@@ -708,12 +729,17 @@ export default defineComponent({
           profileText: profileText,
           extraData: data,
         });
+<<<<<<< HEAD
+=======
+
+>>>>>>> 00227aaa8b444030b438262605a77bec994d2b32
         console.log('Profile posted successfully:', response.data);
       } catch (error) {
         console.error('Error posting profile:', error);
       }
     }
 
+<<<<<<< HEAD
     // ==========================
     // NEW GAME LOGIC
     // ==========================
@@ -851,6 +877,8 @@ export default defineComponent({
       }, 500)
     }
 
+=======
+>>>>>>> 00227aaa8b444030b438262605a77bec994d2b32
     return {
       // Steps
       step,
@@ -879,6 +907,7 @@ export default defineComponent({
       nextStep,
       saveProfile,
       postProfile,
+<<<<<<< HEAD
 
       // Sorting
       goToSortingCeremony,
@@ -899,6 +928,8 @@ export default defineComponent({
       submitMagicQuiz,
       rollDice,
       finishDiceGame,
+=======
+>>>>>>> 00227aaa8b444030b438262605a77bec994d2b32
     }
   },
 })
