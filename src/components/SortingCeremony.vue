@@ -155,7 +155,7 @@
             <div v-if="step === 7" key="lucky-dice-game" class="ceremony-step">
               <h2>Lucky Dice Game</h2>
               <p>Click to roll a magical dice and add a random score between -50 and +50!</p>
-              <!-- 1. 只可掷一次 -->
+              <!-- 1. Only roll once -->
               <button @click="rollDice" class="magical-button" :disabled="diceRolled">
                 Roll Dice
               </button>
@@ -174,7 +174,7 @@
               <h2>Game Over</h2>
               <p>Your total score is: {{ totalScore }}</p>
               <!--grade of reward-->>
-              <div v-if="totalScore >= 0">
+              <div v-if="totalScore >= 60">
                 <p>Congratulations! You have unlocked a special avatar and 8-bit background music!Please wait 10s to generate...</p>
                 <!-- Example placeholder for the custom avatar image -->
                 <!-- <img
@@ -194,7 +194,7 @@
               <div v-else>
                 <p>Sorry, you did not earn the special reward this time.</p>
               </div>
-              <!-- 2. 点击 Sorting Ceremony 会自动分配学院并显示档案 -->
+              <!-- 2. Click Sorting Ceremony to automatically assign the college and display the profile. -->
               <button @click="goToSortingCeremony" class="magical-button">
                 Sorting Ceremony
               </button>
@@ -570,7 +570,7 @@ export default defineComponent({
     }
 
     /**
-     * 2. 当点击"Sorting Ceremony"时，直接去 step=9 并自动触发学院分配
+     * 2. When clicking "Sorting Ceremony", go directly to step=9 and automatically trigger the college allocation
      */
     async function goToSortingCeremony() {
       // Transition from step 8 -> step 9
@@ -706,18 +706,18 @@ export default defineComponent({
 
       const imageDom = this.$refs.imageDom as HTMLElement;
 
-      // 使用 html2canvas 截图
+      // Taking screenshots with html2canvas
       html2canvas(imageDom).then((canvas) => {
-        // 将截图转换为 Data URL
+        // Converting screenshots to Data URLs
         const image = canvas.toDataURL('image/png');
 
-        // 创建下载链接并下载
+        // Create a download link and download
         const link = document.createElement('a');
         link.href = image;
-        link.download = 'wizard-profile.png'; // 设置下载文件名
+        link.download = 'wizard-profile.png'; // Set the download file name
         link.click();
       }).catch(error => {
-        console.error('截图失败:', error);
+        console.error('Screenshot failed:', error);
       });
 
     }
@@ -847,7 +847,7 @@ export default defineComponent({
 
     // --- Score & dice result ---
     const totalScore = ref(0)
-    // 控制只能掷一次骰子
+    // Control can only roll the dice once
     const diceRolled = ref(false)
     const diceResult = ref<number | null>(null)
 
@@ -891,7 +891,7 @@ export default defineComponent({
      * Rolls a dice from -50 to +50, but only once
      */
     function rollDice() {
-      if (diceRolled.value) return // 已经掷过就不再掷
+      if (diceRolled.value) return // If you have already rolled, don't roll again
 
       // random from -50 to +50
       //const randomValue = Math.floor(Math.random() * 101) - 50
@@ -1071,7 +1071,7 @@ export default defineComponent({
 */
 .ceremony-container {
   width: 90%;
-  max-width: 800px;
+  max-width: 1000px;
   margin: 2rem;
   perspective: 1000px;
 }
