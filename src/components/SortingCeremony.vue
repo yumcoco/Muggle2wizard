@@ -219,55 +219,58 @@
 
             <!-- Step 10: Result (Wizard Profile) -->
             <div v-if="step === 10" key="result" class="ceremony-step result">
-              <div
-                class="wizard-profile"
-                :class="wizardProfile.house.toLowerCase()"
-                :style="{ backgroundImage: `url(${houseBackgroundImage})` }"
-              >
-                <div class="profile-header">
-                  <!-- Dynamic Title Color -->
-                  <h2 class="wizard-profile-title" :style="{ color: houseThemeColor }">
-                    {{ wizardProfile.house }} HOUSE
-                  </h2>
-                </div>
 
-                <div class="profile-content">
-                  <div class="house-crest"></div>
+              <div class="container" ref="imageDom">
+                <div
+                  class="wizard-profile"
+                  :class="wizardProfile.house.toLowerCase()"
+                  :style="{ backgroundImage: `url(${houseBackgroundImage})` }"
+                >
+                  <div class="profile-header">
+                    <!-- Dynamic Title Color -->
+                    <h2 class="wizard-profile-title" :style="{ color: houseThemeColor }">
+                      {{ wizardProfile.house }} HOUSE
+                    </h2>
+                  </div>
 
-                  <div class="profile-details">
-                    <div class="detail-row">
-                      <label>NAME:</label>
-                      <span>{{ wizardName }}</span>
-                    </div>
+                  <div class="profile-content">
+                    <div class="house-crest"></div>
 
-                    <div class="detail-row">
-                      <label>WAND:</label>
-                      <span>{{ wizardProfile.wand }}</span>
-                    </div>
+                    <div class="profile-details">
+                      <div class="detail-row">
+                        <label>NAME:</label>
+                        <span>{{ wizardName }}</span>
+                      </div>
 
-                    <div class="detail-row">
-                      <label>PATRONUS:</label>
-                      <span>{{ wizardProfile.patronus }}</span>
-                    </div>
+                      <div class="detail-row">
+                        <label>WAND:</label>
+                        <span>{{ wizardProfile.wand }}</span>
+                      </div>
 
-                    <div class="detail-row">
-                      <label>SIGNATURE SPELL:</label>
-                      <span>{{ wizardProfile.spell }}</span>
-                    </div>
+                      <div class="detail-row">
+                        <label>PATRONUS:</label>
+                        <span>{{ wizardProfile.patronus }}</span>
+                      </div>
 
-                    <div class="mentor-message">
-                      <h3>MENTOR'S MESSAGE:</h3>
-                      <p>{{ wizardProfile.mentorMessage }}</p>
-                    </div>
+                      <div class="detail-row">
+                        <label>SIGNATURE SPELL:</label>
+                        <span>{{ wizardProfile.spell }}</span>
+                      </div>
 
-                    <div class="signature-line">
-                      <div class="seal"></div>
-                      <div class="line"></div>
+                      <div class="mentor-message">
+                        <h3>MENTOR'S MESSAGE:</h3>
+                        <p>{{ wizardProfile.mentorMessage }}</p>
+                      </div>
+
+                      <div class="signature-line">
+                        <div class="seal"></div>
+                        <div class="line"></div>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <button @click="saveProfile" class="magical-button">Save Certificate</button>
+                  <button @click="saveProfile" class="magical-button">Save Certificate</button>
+                </div>
               </div>
             </div>
           </TransitionGroup>
@@ -292,6 +295,7 @@ import type { UserData, WizardProfile, House } from '@types'
 import { houses } from '@/types'
 import axios from 'axios';
 import { useHuggingFace } from '@/composables/useHuggingFace'
+import html2canvas from 'html2canvas';
 
 export default defineComponent({
   name: 'SortingCeremony',
@@ -671,19 +675,36 @@ export default defineComponent({
       Signature Spell: ${wizardProfile.value.spell}
       Mentor's Message: ${wizardProfile.value.mentorMessage}
       `.trim()
-
-      const blob = new Blob([profileText], { type: 'text/plain' })
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = 'wizard-profile.txt'
-      a.click()
-      URL.revokeObjectURL(url)
+      //
+      // const blob = new Blob([profileText], { type: 'text/plain' })
+      // const url = URL.createObjectURL(blob)
+      // const a = document.createElement('a')
+      // a.href = url
+      // a.download = 'wizard-profile.txt'
+      // a.click()
+      // URL.revokeObjectURL(url)
 
       // Text-to-speech
       const speech = new SpeechSynthesisUtterance(profileText)
       speech.lang = 'en-US'
       speechSynthesis.speak(speech)
+
+      const imageDom = this.$refs.imageDom as HTMLElement;
+
+      // 使用 html2canvas 截图
+      html2canvas(imageDom).then((canvas) => {
+        // 将截图转换为 Data URL
+        const image = canvas.toDataURL('image/png');
+
+        // 创建下载链接并下载
+        const link = document.createElement('a');
+        link.href = image;
+        link.download = 'wizard-profile.png'; // 设置下载文件名
+        link.click();
+      }).catch(error => {
+        console.error('截图失败:', error);
+      });
+
     }
 
     // ==========================

@@ -16,6 +16,7 @@
   "dependencies": {
     "@lottiefiles/vue-lottie-player": "^1.1.0",
     "axios": "^1.7.9",
+    "html2canvas": "^1.4.1",
     "pinia": "^2.2.6",
     "vue": "^3.5.12",
     "vue-router": "^4.4.5"
