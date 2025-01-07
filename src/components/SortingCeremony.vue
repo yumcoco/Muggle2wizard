@@ -173,13 +173,20 @@
             <div v-if="step === 8" key="game-result" class="ceremony-step">
               <h2>Game Over</h2>
               <p>Your total score is: {{ totalScore }}</p>
-              <div v-if="totalScore >= 60">
-                <p>Congratulations! You have unlocked a special avatar and 8-bit background music!</p>
+              <!--grade of reward-->>
+              <div v-if="totalScore >= 0">
+                <p>Congratulations! You have unlocked a special avatar and 8-bit background music!Please wait 10s to generate...</p>
                 <!-- Example placeholder for the custom avatar image -->
-                <img
+                <!-- <img
                   src="https://via.placeholder.com/150x150?text=Custom+Avatar"
                   alt="Custom Avatar"
                   style="border: 2px solid #ffd700; border-radius: 50%;"
+                /> -->
+                <img
+                  v-if="pixelWizardImageUrl"
+                  :src="pixelWizardImageUrl"
+                  alt="Reward Avatar"
+                  style="border: 2px solid #ffd700; border-radius: 50%; max-width: 200px;"
                 />
                 <!-- Example placeholder for background music or 8-bit track (pseudo UI) -->
                 <p>8-bit track: <em>Playing your special reward music...</em></p>
@@ -234,12 +241,20 @@
                   </div>
 
                   <div class="profile-content">
-                    <div class="house-crest"></div>
+                    <!--div class="house-crest"></div-->
+                    <div class="house-crest">
+                      <img
+                          v-if="pixelWizardImageUrl"
+                          :src="pixelWizardImageUrl"
+                          alt="Wizard Avatar"
+                          style="margin-top: -5px; max-width: 100px; border: 2px solid #ffd700; border-radius: 5%;"
+                        />
+                    </div>
 
                     <div class="profile-details">
                       <div class="detail-row">
                         <label>NAME:</label>
-                        <span>{{ wizardName }}</span>
+                        <span>{{ wizardName }}({{userData.name }})</span>
                       </div>
 
                       <div class="detail-row">
@@ -879,7 +894,8 @@ export default defineComponent({
       if (diceRolled.value) return // 已经掷过就不再掷
 
       // random from -50 to +50
-      const randomValue = Math.floor(Math.random() * 101) - 50
+      //const randomValue = Math.floor(Math.random() * 101) - 50
+      const randomValue = Math.floor(Math.random() * 101)
       diceResult.value = randomValue
       totalScore.value += randomValue
       diceRolled.value = true
@@ -891,12 +907,15 @@ export default defineComponent({
     function finishDiceGame() {
       step.value = 8
       showDialog.value = false
+      if (totalScore.value >= 60) {
+      generatePixelWizard()
+      }
       setTimeout(async () => {
         showDialog.value = true
         if (dialogText.value) {
           await typeText(currentDialog.value, dialogText.value)
         }
-      }, 500)
+      }, 10000)
     }
 
     return {
