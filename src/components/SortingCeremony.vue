@@ -1118,7 +1118,7 @@ export default defineComponent({
 
 .character-dialog.show {
   opacity: 1;
-  transform: translateY(0);
+
 }
 
 /*
@@ -1140,6 +1140,8 @@ export default defineComponent({
 }
 
 .character-avatar.sorting-hat {
+  left: 8%;
+  position: relative;
   background-image: url('public/assets/sorting-hat.png');
 }
 
@@ -1229,10 +1231,10 @@ export default defineComponent({
 }
 
 .sorting-hat-container {
-  position: absolute;
-  top: 50%;
+  position: relative;
+
   left: 50%;
-  transform: translate(-50%, -50%);
+
 }
 
 .sorting-hat {
@@ -1505,10 +1507,10 @@ export default defineComponent({
 
 @keyframes wobble {
   0%, 100% {
-    transform: translate(-50%, -50%) rotate(0deg);
+    transform: translate(-50%, -20%) rotate(0deg);
   }
   50% {
-    transform: translate(-50%, -50%) rotate(5deg);
+    transform: translate(-50%, -20%) rotate(5deg);
   }
 }
 
