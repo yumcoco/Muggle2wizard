@@ -1309,7 +1309,7 @@ export default defineComponent({
   -------------------------------------------
 */
 .wizard-profile {
-  width: 100%;
+  width: 919px;
   max-width: 1024px;
   aspect-ratio: 1.4/1;
   background-size: cover;
@@ -1343,7 +1343,7 @@ export default defineComponent({
   text-transform: uppercase;
   letter-spacing: 0.2em;
   margin: 0;
-  padding-top: 180px;
+  padding-top: 30%;
 }
 
 .profile-content {
