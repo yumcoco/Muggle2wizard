@@ -174,8 +174,8 @@
               <h2>Game Over</h2>
               <p>Your total score is: {{ totalScore }}</p>
               <!--grade of reward-->>
-              <div v-if="totalScore >= 60">
-                <p>Congratulations! You have unlocked a special avatar and 8-bit background music!Please wait 10s to generate...</p>
+              <div v-if="totalScore >= 0">
+                <p>Congratulations! You have unlocked a special avatar and 8-bit background music!Please wait at least 1min to generate...</p>
                 <!-- Example placeholder for the custom avatar image -->
                 <!-- <img
                   src="https://via.placeholder.com/150x150?text=Custom+Avatar"
@@ -244,9 +244,8 @@
                     <!--div class="house-crest"></div-->
                     <div class="house-crest">
                       <img
-                          v-if="pixelWizardImageUrl"
-                          :src="pixelWizardImageUrl"
-                          alt="Wizard Avatar"
+                          :src="avatarUrl"
+                          :alt="userData.gender === 'male' ? 'Male Wizard Avatar' : 'Female Wizard Avatar'"
                           style="margin-top: -5px; max-width: 100px; border: 2px solid #ffd700; border-radius: 5%;"
                         />
                     </div>
@@ -345,6 +344,9 @@ export default defineComponent({
       scene: '',
       wish: '',
     })
+
+    const maleAvatarUrl = 'public/assets/user1.png';
+    const femaleAvatarUrl = 'public/assets/user.png';
 
     // ==========================
     // Wizard Profile data
@@ -777,6 +779,15 @@ export default defineComponent({
       return URL.createObjectURL(result.value)
     })
 
+    const avatarUrl = computed(() => {
+      if (pixelWizardImageUrl.value) {
+        return pixelWizardImageUrl.value; // 优先显示生成头像
+      }
+      // 根据性别显示默认头像
+      return userData.value.gender === 'male' ? maleAvatarUrl : femaleAvatarUrl;
+    });
+
+
     // ==========================
     // NEW GAME LOGIC
     // ==========================
@@ -918,6 +929,8 @@ export default defineComponent({
       }, 10000)
     }
 
+
+
     return {
       // Steps
       step,
@@ -928,7 +941,9 @@ export default defineComponent({
       wizardProfile,
       wizardName,
       houses,
-
+      maleAvatarUrl,
+      femaleAvatarUrl,
+      avatarUrl,
 
       //model image result
       loading,
@@ -1118,7 +1133,7 @@ export default defineComponent({
 
 .character-dialog.show {
   opacity: 1;
-
+  transform: translateY(0);
 }
 
 /*
@@ -1140,8 +1155,6 @@ export default defineComponent({
 }
 
 .character-avatar.sorting-hat {
-  left: 8%;
-  position: relative;
   background-image: url('public/assets/sorting-hat.png');
 }
 
@@ -1231,10 +1244,10 @@ export default defineComponent({
 }
 
 .sorting-hat-container {
-  position: relative;
-
+  position: absolute;
+  top: 50%;
   left: 50%;
-
+  transform: translate(-50%, -50%);
 }
 
 .sorting-hat {
@@ -1507,10 +1520,10 @@ export default defineComponent({
 
 @keyframes wobble {
   0%, 100% {
-    transform: translate(-50%, -20%) rotate(0deg);
+    transform: translate(-50%, -50%) rotate(0deg);
   }
   50% {
-    transform: translate(-50%, -20%) rotate(5deg);
+    transform: translate(-50%, -50%) rotate(5deg);
   }
 }
 
