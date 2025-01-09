@@ -1,18 +1,22 @@
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 
 export function useMusicGen() {
-  const loading = ref(false);
-  const result = ref<Blob | null>(null);
-  const error = ref<string | null>(null);
+  const Musicloading = ref(false);
+  const Musicresult = ref<Blob | null>(null);
+  const Misicerror = ref<string | null>(null);
 
-  async function queryMusicGen(prompt: string) {
-    loading.value = true;
-    error.value = null;
-    result.value = null;
+  async function queryMusicGen(data: { inputs: string }) {
+    Musicloading.value = true;
+    Misicerror.value = null;
+    Musicresult.value = null;
 
     try {
       const API_URL = 'https://api-inference.huggingface.co/models/facebook/musicgen-small';
-      const HF_TOKEN = import.meta.env.VITE_HF_TOKEN || 'hf_example_token';
+      const HF_TOKEN = import.meta.env.VITE_HF_TOKEN;
+
+      if (!HF_TOKEN) {
+        throw new Error('Hugging Face token is not set in environment variables.');
+      }
 
       const response = await fetch(API_URL, {
         method: 'POST',
@@ -20,37 +24,36 @@ export function useMusicGen() {
           Authorization: `Bearer ${HF_TOKEN}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ inputs: prompt }),
+        body: JSON.stringify(data),
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
+        const errorDetails = await response.json();
+        throw new Error(`HTTP error! Status: ${response.status}. Message: ${errorDetails.Misicerror || 'Unknown error'}`);
       }
 
       const audioBlob = await response.blob();
-      result.value = audioBlob;
+      Musicresult.value = audioBlob;
     } catch (err: any) {
-      error.value = err.message || 'Request failed';
+      Misicerror.value = err.message || 'Request failed';
     } finally {
-      loading.value = false;
+      Musicloading.value = false;
     }
   }
 
-  const audioUrl = ref<string | null>(null);
-
-  // Create a URL for the audio result
-  const getAudioUrl = () => {
-    if (result.value) {
-      audioUrl.value = URL.createObjectURL(result.value);
+  //compute the audio URL
+  const audioUrl = computed(() => {
+    if (Musicresult.value) {
+      return URL.createObjectURL(Musicresult.value);
     }
-  };
+    return null;
+  });
 
   return {
-    loading,
-    result,
-    error,
+    Musicloading,
+    Musicresult,
+    Misicerror,
     queryMusicGen,
     audioUrl,
-    getAudioUrl,
   };
 }

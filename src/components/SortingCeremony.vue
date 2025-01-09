@@ -312,6 +312,7 @@ import { useHuggingFace } from '@/composables/useHuggingFace'
 import html2canvas from 'html2canvas';
 import { useMusicGen } from '@/composables/useMusicGen';
 
+
 export default defineComponent({
   name: 'SortingCeremony',
   setup() {
@@ -758,7 +759,7 @@ export default defineComponent({
     // add model composables
     // ==========================
     const { loading, result, error, queryHuggingFace } = useHuggingFace()
-    const { queryMusicGen, audioUrl, getAudioUrl } = useMusicGen();
+    const { Musicloading,Musicresult,Misicerror,queryMusicGen,audioUrl} = useMusicGen()
     //2.create prompt
     function buildPixelPrompt(): string {
       return `
@@ -789,16 +790,6 @@ export default defineComponent({
       return userData.value.gender === 'male' ? maleAvatarUrl : femaleAvatarUrl;
     });
     //4.generate the 8-bit music
-    const musicResult = ref(null);
-
-    const musicAudioUrl = computed(() => {
-    if (musicResult.value && musicResult.value instanceof Blob) {
-      return URL.createObjectURL(musicResult.value);
-    }
-      return '';
-    });
-
-
     function buildMusicPromptText(): string {
     return `
     a less noise 8-bit wizard masterpiece music,
@@ -812,13 +803,10 @@ export default defineComponent({
       const prompt = buildMusicPromptText();
       await queryMusicGen({ inputs: prompt });
     }
-
-    // Unified generation
-    async function generateAllAssets() {
-      if (totalScore.value >= 60) {
-        await Promise.all([generatePixelWizard(), generatePixelMusic()]);
-      }
-    }
+    const musicAudioUrl = computed(() => {
+      if (!Musicresult.value) return '';
+      return URL.createObjectURL(Musicresult.value);
+    });
 
 
     // ==========================
@@ -984,8 +972,11 @@ export default defineComponent({
       error,
       generatePixelWizard,
       pixelWizardImageUrl,
-      audioUrl,
-      getAudioUrl,
+      Musicloading,
+      Misicerror,
+      generatePixelMusic,
+      musicAudioUrl,
+
 
       // Refs
       spellElement,
