@@ -310,6 +310,7 @@ import { houses } from '@/types'
 import axios from 'axios';
 import { useHuggingFace } from '@/composables/useHuggingFace'
 import html2canvas from 'html2canvas';
+import { useMusicGen } from '@/composables/useMusicGen';
 
 export default defineComponent({
   name: 'SortingCeremony',
@@ -757,6 +758,7 @@ export default defineComponent({
     // add model composables
     // ==========================
     const { loading, result, error, queryHuggingFace } = useHuggingFace()
+    const { queryMusicGen, audioUrl, getAudioUrl } = useMusicGen();
     //2.create prompt
     function buildPixelPrompt(): string {
       return `
@@ -781,11 +783,42 @@ export default defineComponent({
 
     const avatarUrl = computed(() => {
       if (pixelWizardImageUrl.value) {
-        return pixelWizardImageUrl.value; // 优先显示生成头像
+        return pixelWizardImageUrl.value; // Generated avatars are displayed first.
       }
-      // 根据性别显示默认头像
+      // The default avatar is displayed based on gender.
       return userData.value.gender === 'male' ? maleAvatarUrl : femaleAvatarUrl;
     });
+    //4.generate the 8-bit music
+    const musicResult = ref(null);
+
+    const musicAudioUrl = computed(() => {
+    if (musicResult.value && musicResult.value instanceof Blob) {
+      return URL.createObjectURL(musicResult.value);
+    }
+      return '';
+    });
+
+
+    function buildMusicPromptText(): string {
+    return `
+    a less noise 8-bit wizard masterpiece music,
+    inspired by Hogwarts, magic, Harry Potter,
+    Wizard, with personality '${userData.value.mbti}'
+    and gender '${userData.value.gender}',
+    background '${userData.value.scene}'
+    `.trim();
+    }
+    async function generatePixelMusic() {
+      const prompt = buildMusicPromptText();
+      await queryMusicGen({ inputs: prompt });
+    }
+
+    // Unified generation
+    async function generateAllAssets() {
+      if (totalScore.value >= 60) {
+        await Promise.all([generatePixelWizard(), generatePixelMusic()]);
+      }
+    }
 
 
     // ==========================
@@ -920,6 +953,7 @@ export default defineComponent({
       showDialog.value = false
       if (totalScore.value >= 60) {
       generatePixelWizard()
+      generatePixelMusic()
       }
       setTimeout(async () => {
         showDialog.value = true
@@ -950,6 +984,8 @@ export default defineComponent({
       error,
       generatePixelWizard,
       pixelWizardImageUrl,
+      audioUrl,
+      getAudioUrl,
 
       // Refs
       spellElement,
