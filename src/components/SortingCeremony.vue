@@ -173,9 +173,10 @@
             <div v-if="step === 8" key="game-result" class="ceremony-step">
               <h2>Game Over</h2>
               <p>Your total score is: {{ totalScore }}</p>
-              <!--grade of reward-->>
+              <!--grade of reward-->
               <div v-if="totalScore >= 0">
-                <p>Congratulations! You have unlocked a special avatar and 8-bit background music!Please wait at least 1min to generate...</p>
+                <p>Congratulations! You have unlocked a special avatar and 8-bit background music!</p>
+                <p>Please wait at least 1min to generate...</p>
                 <!-- Example placeholder for the custom avatar image -->
                 <!-- <img
                   src="https://via.placeholder.com/150x150?text=Custom+Avatar"
