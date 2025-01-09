@@ -189,7 +189,15 @@
                   style="border: 2px solid #ffd700; border-radius: 50%; max-width: 200px;"
                 />
                 <!-- Example placeholder for background music or 8-bit track (pseudo UI) -->
-                <p>8-bit track: <em>Playing your special reward music...</em></p>
+                <p><em>Playing your special reward music...</em></p>
+                <!-- Background Music -->
+                <p v-if="musicAudioUrl">
+                8-bit track:
+                <audio :src="musicAudioUrl" controls autoplay></audio>
+                </p>
+                <p v-else>
+                Generating your 8-bit reward music... Please wait.
+                </p>
               </div>
               <div v-else>
                 <p>Sorry, you did not earn the special reward this time.</p>
@@ -723,7 +731,6 @@ export default defineComponent({
       }).catch(error => {
         console.error('Screenshot failed:', error);
       });
-
     }
 
     // ==========================
