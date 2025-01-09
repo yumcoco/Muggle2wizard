@@ -1,8 +1,8 @@
 <template>
   <div class="ceremony-start">
     <img src="/assets/dobby-avatar.png" alt="Dobby" class="avatar" />
-    <p>多比：“欢迎来到魔法世界，尊贵的麻瓜！请站在分院帽前，让我们开始一场属于你的神奇仪式！”</p>
-    <button @click="startCeremony">开始仪式</button>
+    <p>Dobby: "Welcome to the wizarding world, honorable Muggle! Please stand in front of the Sorting Hat and let us begin a magical ceremony of your own!”</p>
+    <button @click="startCeremony">Start the ceremony</button>
   </div>
 </template>
 

@@ -596,8 +596,8 @@ export default defineComponent({
       if (dialogText.value) {
         await typeText(currentDialog.value, dialogText.value)
       }
-
-      // 自动执行 Sorting Ceremony
+      bgMusic?.play()
+      // Automate Sorting Ceremony
       await startSortingCeremony()
     }
 
@@ -813,9 +813,12 @@ export default defineComponent({
     }
     const musicAudioUrl = computed(() => {
       if (!Musicresult.value) return '';
+      if (URL.createObjectURL(Musicresult.value)) {
+        bgMusic.pause()
+    }
+
       return URL.createObjectURL(Musicresult.value);
     });
-
 
     // ==========================
     // NEW GAME LOGIC

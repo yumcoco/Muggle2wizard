@@ -8,9 +8,9 @@
 import { defineComponent } from 'vue'
 import SortingCeremony from './components/SortingCeremony.vue'
 
-// 添加明确的组件名称
+// Add explicit component names
 export default defineComponent({
-  name: 'App', // 添加显式的组件名称
+  name: 'App', // Add explicit component names
   components: {
     SortingCeremony,
   },

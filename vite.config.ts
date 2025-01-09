@@ -9,7 +9,7 @@ import path from 'path'
 export default defineConfig({
   plugins: [vue(), vueJsx(), vueDevTools()],
   server: {
-    port: 3000, // 指定端口（可选）
+    port: 3000, // Specify the port (optional)
   },
   resolve: {
     alias: {

@@ -1,6 +1,6 @@
 /* src/styles/animations.css */
 
-/* 漂浮动画，用于营造漂浮或悬浮的效果 */
+/* Floating animation, used to create floating or suspended effects */
 @keyframes float {
   0%,
   100% {
@@ -11,7 +11,7 @@
   }
 }
 
-/* 闪烁动画，用于营造魔法光晕或文本闪烁效果 */
+/* Flashing animation, used to create magic halo or text flashing effects */
 @keyframes blink {
   0%,
   100% {
@@ -22,7 +22,7 @@
   }
 }
 
-/* 旋转动画，用于分院帽或其他旋转效果 */
+/* Rotation animation, for use with the Sorting Hat or other rotating effects */
 @keyframes spin {
   0% {
     transform: rotate(0deg);
@@ -32,7 +32,7 @@
   }
 }
 
-/* 放大缩小动画，用于按钮点击效果或提示元素 */
+/* Zoom in and out animation, used for button click effects or prompt elements */
 @keyframes pulse {
   0% {
     transform: scale(1);
@@ -45,7 +45,7 @@
   }
 }
 
-/* 淡入动画，用于页面或元素加载时的淡入效果 */
+/* Fade-in animation, used for fade-in effect when page or element is loaded */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -55,7 +55,7 @@
   }
 }
 
-/* 弹跳动画，用于多比的跳跃效果或按钮的弹跳效果 */
+/* Bounce animation, used for Dobby's jumping effect or button's bouncing effect */
 @keyframes bounce {
   0%,
   20%,
@@ -72,7 +72,7 @@
   }
 }
 
-/* 缩放并旋转，类似魔法物品的出现效果 */
+/* Scale and rotate, similar to the appearance of magic items */
 @keyframes zoomAndSpin {
   0% {
     transform: scale(0) rotate(0deg);
@@ -87,7 +87,7 @@
   }
 }
 
-/* 样式示例，给特定元素使用动画效果 */
+/* Style examples, using animation effects for specific elements */
 .float {
   animation: float 3s ease-in-out infinite;
 }

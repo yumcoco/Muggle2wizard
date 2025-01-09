@@ -2,9 +2,9 @@
 <template>
   <div class="generate-content">
     <p class="dialog">
-      多比：“多比正在为您准备专属魔杖、精灵伙伴、咒语和学院！魔法正在施展中，请稍等！”
+      Dobby: "Dobby is preparing your own wand, elf companion, spells and academy! The magic is being performed, please wait!”
     </p>
-    <button @click="finishCeremony" class="finish-button">查看巫师档案</button>
+    <button @click="finishCeremony" class="finish-button">View Wizard Profile</button>
   </div>
 </template>
 
