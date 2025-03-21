@@ -11,6 +11,7 @@ After filling out a questionnaire to test "talent" and rolling the dice to test 
 <img width="402" alt="image" src="https://github.com/user-attachments/assets/060172da-cb27-46a4-b17f-a0bcf92e3fd5" />
 <img width="402" alt="image" src="https://github.com/user-attachments/assets/f742c471-29b3-43a1-9159-9de2e320b8f8" />
 <img width="402" alt="image" src="https://github.com/user-attachments/assets/ef638e32-62df-4b70-8072-083279d50fda" />
+
 #### Install dependency
 
 1.Open front end software like webstorm and open the project.  
